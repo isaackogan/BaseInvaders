@@ -1,0 +1,14 @@
+2. Game "Main Menu" Screen with options to pick your character
+3. Add Biology notes to the pre-game when a player clicks START to make it more educational (talk about PCR)
+4. Scoreboard (how much score you have) somewhere on the screen
+5. End the game if time runs out before you get the needed base
+6. Add levels based on the # of bases you have paired which get harder per level
+7. Show level count as background text under the main "Base Invaders" title in a matching blue
+8. Add evil mob to game that kills players and ends the game
+9. Add an end game screen
+11. Make a loading screen for resources (seriously, lol) -- change characters to import DURING GAME loading screen as a loading screen process
+    a) Don't forget we need to support more than one game so make sure the loading screen is under base invaders & not main\
+
+go thru all models and assign an offset for bounding box
+change the timer's colour when it gets close to being out of time
+change the timer angle calculation to be based off of time left instead of +='ing the angle (good luck doing the math future isaac lmao)
