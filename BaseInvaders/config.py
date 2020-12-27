@@ -15,10 +15,9 @@ bases = {
     'guanine': load_anim_images('./BaseInvaders/resources/bases/guanine/Guanine (<>).png', 1, 4)
 }
 
-pow_dimensions = 300, 279
-pow_dimensions = (round(pow_dimensions[0]/2), round(pow_dimensions[1]/2))
-
-pow = pygame.transform.scale(pygame.image.load('./BaseInvaders/resources/Pow.png'), pow_dimensions),
+nuclease_dimensions = 640, 640
+nuclease_dimensions = (round(nuclease_dimensions[0] / 6.8), round(nuclease_dimensions[1] / 6.8))
+nuclease = load_anim_images('./BaseInvaders/resources/nuclease/Nuclease (<>).png', 1, 14)
 
 pygame.font.init()
 

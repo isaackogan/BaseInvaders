@@ -1,28 +1,29 @@
-from random import choice, randint
-from BaseInvaders.config import bases, ground, base_dimensions
+from BaseInvaders.config import *
 from config import DISPLAY_X
-import pygame
+from random import choice, randint
+from math import floor
 
 
-class Base:
+class Nuclease:
     def __init__(self):
         # Loading Resources
-        self.bases = bases                                          # Valid display locations for bases
+        self.states = nuclease                                          # Valid display locations for bases
 
         # Settings
-        self.change_x = 0.6                                         # Change the x position by
-        self.change_y = 0.4                                         # Change the y position by
+        self.position_y = -100                                      # Spawn position @ Y level
+        self.change_x = 2                                         # Change the x position by
+        self.change_y = 3                                         # Change the y position by
         self.screen_width = DISPLAY_X                               # Width of the screen (for direction changes)
 
         # Initial Values (Hardcoded)
         self.state_pos = 1                                          # Initial position of image states
-        self.remove_base = False                                    # Boolean for removing the base on remove event
+        self.state_change_amount = 0.5
+        self.regen_nuclease = False                                    # Boolean for removing the base on remove event
 
         # Initial Values (Variable)
         self.direction = choice([True, False])                      # Random spawn direction
-        self.type = choice(list(self.bases.keys()))                 # Random base type
         self.position_x = randint(50, self.screen_width - 50)       # Random spawn position @ X level
-        self.position_y = -100
+        self.flip = True
 
     def handle_movement(self):
         """
@@ -41,24 +42,27 @@ class Base:
         if not self.direction:  # False = Right
             self.position_x += self.change_x
 
-            if self.position_x > self.screen_width - base_dimensions[0]:
+            if self.position_x > self.screen_width - nuclease_dimensions[0]:
                 self.direction = not self.direction
 
         # Move Down (Constant)
         self.position_y += self.change_y
 
         # If hitting the ground
-        if self.position_y + base_dimensions[1] >= ground:
-            self.remove_base = True
+        if self.position_y + nuclease_dimensions[1] >= ground:
+            self.regen_nuclease = True
 
     # Get a display surface of the base
     def get_image(self, increment=True):
         """Return the current position of the base
         :return: A scale pygame surface for the base (image)
         """
-        # Increment the state position of the object's animation if requested
-        if increment and (self.state_pos > len(self.bases[self.type])):
-            self.state_pos = 1
+        if self.flip:
+            if self.state_pos < len(self.states): self.state_pos += self.state_change_amount
+            else: self.flip = False
+        if not self.flip:
+            if self.state_pos > 1: self.state_pos -= self.state_change_amount
+            else: self.flip = True
 
         # Return scaled image at the requested state position
-        return pygame.transform.scale(self.bases[self.type][self.state_pos], base_dimensions)
+        return pygame.transform.scale(self.states[floor(self.state_pos)], nuclease_dimensions)

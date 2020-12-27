@@ -15,9 +15,6 @@ class LevelsSystem:
         return text, size
 
 
-
-
-
 class BaseObjective:
     def __init__(self):
         # Initial Values (Variable)
@@ -31,6 +28,10 @@ class BaseObjective:
         self.state_pos = 1                              # Set the display state to 1 (filled with colour)
         self.position_x = 596                           # Set the default X position of the object
         self.position_y = ground + 103                  # Set the default Y position of the object
+
+        # Timer
+        self.time_per_base = 10
+        self.time_left = self.time_per_base
 
     def new_base(self):
         """
@@ -63,10 +64,16 @@ class BaseObjective:
             self.size_iterator -= 1  # Reduce size iterator
             dimensions = (round(dimensions[0] * 1.2), round(dimensions[1] * 1.2))  # Change dimensions (inflate the image)
 
+        # Get the rotation of the image
+        self.rotation = self.get_rotation()
+
         # Scale the image to its appropriate dimension and rotate it accordingly
-        image = rot_center(pygame.transform.smoothscale(image, dimensions), self.rotation, self.position_x, self.position_y)
+        image = rot_center(pygame.transform.smoothscale(image, dimensions), self.rotation - 90, self.position_x, self.position_y)  # "-90" rotates the position of 0 degrees to -90
 
         return image
+
+    def get_rotation(self):
+        return (self.time_left / self.time_per_base) * 360
 
     def handle_collisions(self, collided_base):
         """

@@ -3,6 +3,7 @@
 import pygame
 from BaseInvaders.modules.resourcetools import load_anim_images
 
+print('ran')
 """
 
 STANDARD

@@ -16,10 +16,10 @@ def load_anim_images(path, start, stop, size=None):
 
     for x in range(start, stop + 1):
         formatted_path = path[:placeholder_pre] + str(x) + path[placeholder_post:]
-        tmp = pygame.image.load(formatted_path)
+        tmp = pygame.image.load(formatted_path).convert_alpha()
 
         if size is not None:
-            tmp = pygame.transform.scale(tmp, (round(size[0]), round(size[1])))
+            tmp = pygame.transform.scale(tmp, (round(size[0]), round(size[1]))).convert_alpha()
 
         images_dict[x] = tmp
 
