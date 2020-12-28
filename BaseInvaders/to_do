@@ -15,3 +15,10 @@ change the timer angle calculation to be based off of time left instead of +='in
 add a "slide" mechanism for when you let go of the key
 load all fonts from a file instead of the system
 12. Dummy event handling for loading screen to stop blue loading wheel from appearing
+
+
+tomorrow:
+- draw pause button + darker colour when mouse is over it, remove photoshop background, make pause button work
+- darker colour when mousing over pause_menu buttons
+- text for scoreboard items
+- create 'levels' and what they mean, track bases paired/needed for next level, track XP (points)
