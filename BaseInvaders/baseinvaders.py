@@ -5,7 +5,8 @@ from config import DISPLAY_X, DISPLAY_Y
 from BaseInvaders.modules.neucleases import Nuclease
 from main import *
 from BaseInvaders.modules.background import *
-
+from BaseInvaders.modules.scoreboard import *
+from BaseInvaders.modules.pausemenu import *
 
 class BaseInvaders:
     def __init__(self):
@@ -13,7 +14,6 @@ class BaseInvaders:
         self.background = pygame.transform.scale(pygame.image.load('./BaseInvaders/resources/BaseInvaders.png'), (self.display_x, self.display_y))
         self.clock = None
         self.character = Boy()
-        self.level = LevelsSystem()
         self.speed = 30
         self.pressed_keys = pygame.key.get_pressed()
         self.general_timer = 0
@@ -26,6 +26,14 @@ class BaseInvaders:
         self.current_animation = None
         self.nuclease = Nuclease()
         self.game_over = False
+
+        self.level = LevelsSystem()
+
+        self.score_scoreboard = ScoreSB()
+        self.levels_scoreboard = LevelSB()
+        self.experience_scoreboard = ExperienceSB()
+
+        self.pause_menu = PauseMenu()
 
         pygame.time.set_timer(pygame.USEREVENT, 10)
 
@@ -68,19 +76,31 @@ class BaseInvaders:
                 if self.objective.time_left <= 0:
                     self.game_over = True
 
-            if self.nuclease.regen_nuclease:
-                self.nuclease = Nuclease()
+                if self.pause_menu.end_game:
+                    self.game_over = True
 
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE: self.pause_menu.run_menu(self.dis)
+
+
+
+
+
+        if self.nuclease.regen_nuclease: self.nuclease = Nuclease()
         self.character.handle_movement()
         self.nuclease.handle_movement()
 
     def draw_graphics(self):
         self.dis.blit(self.background, (0, 0))
 
-        # Level Display
-        level_info = self.level.get_level()
+        # Scoreboard Items
+        self.dis.blit(self.score_scoreboard.get_image(), (self.score_scoreboard.rect_x, self.score_scoreboard.rect_y))  # Score
+        self.dis.blit(self.levels_scoreboard.get_image(), (self.levels_scoreboard.rect_x, self.levels_scoreboard.rect_y))  # Levels
+        self.dis.blit(self.experience_scoreboard.get_image(), (self.experience_scoreboard.rect_x, self.experience_scoreboard.rect_y))  # Levels
 
-        # self.dis.blit(level_font.render(level_info[0], 1, LEVEL_COLOUR), (DISPLAY_X / 2 - level_info[1][0] / 2, 255))  # Draw game over text
+        # Other Items
+
+        level_info = self.level.get_level()
 
         if self.current_animation is not None:
             self.current_animation.get_image()
@@ -128,7 +148,6 @@ class BaseInvaders:
                     if item.position_y > more.position_y:
                         item.position_y += 2
 
-
             # Base Collision with Character
             if base_rect.colliderect(character):
                 got_base = self.objective.handle_collisions(item.type)
@@ -136,7 +155,7 @@ class BaseInvaders:
                 if got_base:
                     self.points += 1
                     self.level.bases -= 1
-                    self.base_timer = 0 # Reset the base timer if they caught the right one
+                    self.base_timer = 0  # Reset the base timer if they caught the right one
 
                 item.remove_base = True
 

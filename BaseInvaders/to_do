@@ -14,3 +14,4 @@ change the timer's colour when it gets close to being out of time
 change the timer angle calculation to be based off of time left instead of +='ing the angle (good luck doing the math future isaac lmao)
 add a "slide" mechanism for when you let go of the key
 load all fonts from a file instead of the system
+12. Dummy event handling for loading screen to stop blue loading wheel from appearing

@@ -24,3 +24,4 @@ pygame.font.init()
 # Colours
 LEVEL_COLOUR = (99, 125, 144)
 level_font = pygame.font.SysFont('Filicudi', 110)
+
