@@ -4,6 +4,84 @@ import os
 from io import StringIO, BytesIO
 from config import *
 import webbrowser
+from BaseInvaders.modules.resourcetools import rounded_rectangle
+
+
+class PauseButton:
+    """Responsible for displaying scoreboard items (not calculating values in them)"""
+    def __init__(self):
+        self.rect_x, self.rect_y = 1062, 36
+        self.rect_width, self.rect_height = 70, 65
+
+        self.text_x, self.text_y = 0, 0
+        self.text_width, self.text_height = 0, 0
+
+        self.border_thickness = 8
+        self.rect_radius = 0.2
+        self.border_radius = 0.35
+
+        self.text = "II"
+        self.font = pause_button_font
+
+        self.rect_color = COLOR_TAN
+        self.border_color = COLOR_BURLYWOOD
+        self.text_color = COLOR_BROWN
+
+        # Packaged Data
+        self.border_data = None
+        self.rect_data = None
+        self.text_data = None
+        self.completed_surface_data = None
+
+    def mouse_on_button(self):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        if (self.rect_x - self.border_thickness < mouse_x < (self.rect_x + self.rect_width + (self.border_thickness * 2))) and \
+                (self.rect_y - self.border_thickness < mouse_y < (self.rect_y + self.rect_height + (self.border_thickness * 2))):
+            return True
+        else:
+            return False
+
+    def get_border(self):
+        self.border_data = rounded_rectangle((0, 0, self.rect_width + (self.border_thickness * 2), self.rect_height + (self.border_thickness * 2)), self.border_color, self.border_radius)
+        return self.border_data
+
+    def get_text_pos(self):
+        size = self.font.size(self.text)
+        return (self.rect_width / 2) - (size[0] / 2) + 8, (self.rect_height / 2) - (size[1] / 2) + 7
+
+    def get_rectangle(self):
+        # Get the colours
+        if self.mouse_on_button():
+            self.rect_color = COLOR_TAN_DARK
+            self.border_color = COLOR_BURLYWOOD_DARK
+            self.text_color = COLOR_BROWN_DARK
+        else:
+            self.rect_color = COLOR_TAN
+            self.border_color = COLOR_BURLYWOOD
+            self.text_color = COLOR_BROWN
+
+        # Get the "main" rectangle
+        self.rect_data = rounded_rectangle((0, 0, self.rect_width, self.rect_height), self.rect_color, self.rect_radius)
+
+        # Get the border from the "main" rectangle
+        border_surface = self.get_border()
+
+        # Blit the main rectangle onto the border surface
+        border_surface.blit(self.rect_data, (self.border_thickness, self.border_thickness))
+
+        # Blit the text onto the border surface
+        border_surface.blit(self.font.render(self.text, True, self.text_color), self.get_text_pos())
+
+        # Return the completed surface
+        return border_surface
+
+    def get_image(self):
+        """Gets the completed image with text on rounded rectangle surface, returns"""
+        self.completed_surface_data = self.get_rectangle()
+
+        #self.rect_data.blit(self.text_data, (self.text_x, self.text_y))
+        return self.completed_surface_data
+
 
 
 class PauseMenu:
@@ -44,14 +122,18 @@ class PauseMenu:
                             print("End Game")
                         if self.buttons[button] == self.buttons['credits_button']:
                             webbrowser.open('https://github.com/isaackogan/BaseInvaders', new=2)
-
                         if self.buttons[button] == self.buttons['quitgame_button']:
                             pygame.quit(), exit()
 
         self.highlight_buttons()
 
     def highlight_buttons(self):
-        pass
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        for button in self.buttons:
+            self.buttons[button].text_colour, self.buttons[button].button_colour = self.buttons[button].text_colour_light, self.buttons[button].button_colour_light
+
+            if (self.buttons[button].button_x < mouse_x < (self.buttons[button].button_x + self.buttons[button].button_width)) and (self.buttons[button].button_y < mouse_y < (self.buttons[button].button_y + self.buttons[button].button_height)):
+                self.buttons[button].text_colour, self.buttons[button].button_colour = self.buttons[button].text_colour_dark, self.buttons[button].button_colour_dark
 
     def get_background(self, display, blur_amount):
         data = pygame.image.tostring(display, 'RGB')
@@ -94,8 +176,13 @@ class PauseMenuButtons:
         self.button_x = (DISPLAY_X / 2) - (self.button_width / 2)
         self.sub_surface = None
 
-        self.button_colour = None
-        self.highlight = False
+        self.button_colour_light = (COLOR_TAN)
+        self.button_colour_dark = (COLOR_BURLYWOOD)
+        self.text_colour_light = (242, 242, 242)
+        self.text_colour_dark = (255, 255, 255)
+
+        self.button_colour = self.button_colour_light
+        self.text_colour = self.text_colour_light
 
     def create_surface(self):
         self.sub_surface = pygame.Surface((self.button_width, self.button_height))
@@ -105,15 +192,11 @@ class PauseMenuButtons:
         return pause_menu_font.size(self.text)
 
     def get_image(self):
-        if self.highlight:
-            self.button_colour = COLOUR_BLACK
-        if not self.highlight:
-            self.button_colour = (COLOR_BURLYWOOD)
 
         pygame.draw.rect(self.sub_surface, self.button_colour, pygame.Rect(0, 0, self.button_x, self.button_y))
 
         self.sub_surface.blit(pause_menu_font.render(
-            self.text, True, (242, 242, 242)), (
+            self.text, True, self.text_colour), (
             (
                     self.button_width / 2) - (self.get_text_location()[0] / 2), (self.button_height / 2) - (self.get_text_location()[1] / 2)
         ))

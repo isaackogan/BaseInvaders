@@ -5,14 +5,14 @@ from math import floor
 
 
 class Nuclease:
-    def __init__(self):
+    def __init__(self, speed, size_modifier=1):
         # Loading Resources
         self.states = nuclease                                          # Valid display locations for bases
 
         # Settings
         self.position_y = -100                                      # Spawn position @ Y level
-        self.change_x = 2                                         # Change the x position by
-        self.change_y = 3                                         # Change the y position by
+        self.change_x = speed[0]                                         # Change the x position by
+        self.change_y = speed[1]                                         # Change the y position by
         self.screen_width = DISPLAY_X                               # Width of the screen (for direction changes)
 
         # Initial Values (Hardcoded)
@@ -24,6 +24,8 @@ class Nuclease:
         self.direction = choice([True, False])                      # Random spawn direction
         self.position_x = randint(50, self.screen_width - 50)       # Random spawn position @ X level
         self.flip = True
+
+        self.size_modifier = size_modifier
 
     def handle_movement(self):
         """
@@ -49,7 +51,7 @@ class Nuclease:
         self.position_y += self.change_y
 
         # If hitting the ground
-        if self.position_y + nuclease_dimensions[1] >= ground:
+        if self.position_y + nuclease_dimensions[1] * self.size_modifier >= ground:
             self.regen_nuclease = True
 
     # Get a display surface of the base
@@ -65,4 +67,4 @@ class Nuclease:
             else: self.flip = True
 
         # Return scaled image at the requested state position
-        return pygame.transform.scale(self.states[floor(self.state_pos)], nuclease_dimensions)
+        return pygame.transform.scale(self.states[floor(self.state_pos)], (round(nuclease_dimensions[0] * self.size_modifier), round(nuclease_dimensions[1] * self.size_modifier)))

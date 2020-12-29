@@ -1,6 +1,6 @@
 from BaseInvaders.modules.resourcetools import rounded_rectangle
 import pygame
-from config import COLOUR_TAN, COLOR_BURLYWOOD, COLOUR_BROWN
+from config import *
 
 
 class ScoreBoardItem:
@@ -21,14 +21,15 @@ class ScoreBoardItem:
         self.rect_data = None
         self.text_data = None
         self.completed_surface_data = None
+        self.display_string = None
 
     def get_border(self):
-        self.border_data = rounded_rectangle((0, 0, self.rect_width + (self.border_thickness * 2), self.rect_height + (self.border_thickness * 2)), (0,0,0), self.border_radius)
+        self.border_data = rounded_rectangle((0, 0, self.rect_width + (self.border_thickness * 2), self.rect_height + (self.border_thickness * 2)), COLOR_BURLYWOOD, self.border_radius)
         return self.border_data
 
     def get_rectangle(self):
         # Get the "main" rectangle
-        self.rect_data = rounded_rectangle((0, 0, self.rect_width, self.rect_height), COLOUR_TAN, self.rect_radius)
+        self.rect_data = rounded_rectangle((0, 0, self.rect_width, self.rect_height), COLOR_TAN, self.rect_radius)
 
         # Get the border from the "main" rectangle
         border_surface = self.get_border()
@@ -41,18 +42,32 @@ class ScoreBoardItem:
 
     def get_image(self):
         """Gets the completed image with text on rounded rectangle surface, returns"""
+        # Get Rect
         self.completed_surface_data = self.get_rectangle()
 
-        #self.rect_data.blit(self.text_data, (self.text_x, self.text_y))
+        self.completed_surface_data.blit(self.get_text(), (self.text_x, self.text_y))
         return self.completed_surface_data
+
+    def get_text(self):
+        text_size = scoreboard_font.size(self.display_string)
+        text = scoreboard_font.render(self.display_string, True, COLOR_BROWN)
+
+        self.text_x = ((self.rect_width + (self.border_thickness * 2)) / 2) - (text_size[0] / 2)
+        self.text_y = ((self.rect_height + (self.border_thickness * 2)) / 2 - (text_size[1] / 2))
+
+        return text
 
 
 class ScoreSB(ScoreBoardItem):
     def __init__(self):
         ScoreBoardItem.__init__(self)
-        self.score = 0
         self.score_to_next_level = 5
         self.rect_x = 51
+
+        self.display_string = "None"
+
+    def set_display_string(self, value):
+        self.display_string = f"{value[0]}/{value[1]} bp"
 
 
 class LevelSB(ScoreBoardItem):
@@ -62,13 +77,26 @@ class LevelSB(ScoreBoardItem):
         self.score_to_next_level = 5
         self.rect_x = 385
 
+        self.display_string = "None"
+
+    def set_display_string(self, value):
+        self.display_string = f"Level {value}"
 
 class ExperienceSB(ScoreBoardItem):
     def __init__(self):
         ScoreBoardItem.__init__(self)
-        self.score = 0
+        self.score = 5
         self.score_to_next_level = 5
         self.rect_x = 729
+
+        self.xp = 0
+        self.xp_increase = 10
+        self.display_string = "None"
+
+    def set_display_string(self, value):
+        self.display_string = f"{('{:,}'.format(value))} XP"
+
+
 
 
 
