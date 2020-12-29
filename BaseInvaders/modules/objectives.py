@@ -1,18 +1,25 @@
 from random import choice
 from BaseInvaders.config import *
 from BaseInvaders.modules.resourcetools import rot_center
-
+from math import ceil
 
 class LevelsSystem:
     def __init__(self):
         self.amount = 1
-        self.bases = 30
+        self.bases = 0
+        self.level = 1
 
-    def get_level(self):
-        text = f"Level {self.amount} - {self.bases} Bases Left"
-        size = level_font.size(text)
+    @staticmethod
+    def bases_at_level(level):
+        """Get Bases from Level"""
+        return ceil(((level**2)/0.2) - 5)
 
-        return text, size
+    def update_level(self):
+        needed = self.bases_at_level(self.level + 1)
+
+        if self.bases >= needed:
+            self.level += 1
+            return True
 
 
 class BaseObjective:
@@ -30,7 +37,7 @@ class BaseObjective:
         self.position_y = ground + 103                  # Set the default Y position of the object
 
         # Timer
-        self.time_per_base = 10
+        self.time_per_base = 25
         self.time_left = self.time_per_base
 
     def new_base(self):

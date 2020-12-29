@@ -8,6 +8,7 @@ from BaseInvaders.modules.background import *
 from BaseInvaders.modules.scoreboard import *
 from BaseInvaders.modules.pausemenu import *
 
+
 class BaseInvaders:
     def __init__(self):
         self.display_x, self.display_y = DISPLAY_X, DISPLAY_Y
@@ -19,23 +20,33 @@ class BaseInvaders:
         self.general_timer = 0
         self.base_timer = 0
         self.bases = []
-        self.points = 0
         self.last_spawn = Base()
         self.objective = None
         self.dis = dis
         self.current_animation = None
-        self.nuclease = Nuclease()
+
         self.game_over = False
 
-        self.level = LevelsSystem()
+        self.levelsystem = LevelsSystem()
 
         self.score_scoreboard = ScoreSB()
         self.levels_scoreboard = LevelSB()
         self.experience_scoreboard = ExperienceSB()
 
         self.pause_menu = PauseMenu()
+        self.pause_button = PauseButton()
+
+        self.experience = 0
+
+        self.base_spawnrate = 2
+
+        self.nuclease_speed = [2, 3]
+        self.nuclease_size_modifier = 1
+        self.nuclease = Nuclease(self.nuclease_speed)
 
         pygame.time.set_timer(pygame.USEREVENT, 10)
+
+        self.slide_iterator = 0
 
     def handle_events(self):
 
@@ -55,7 +66,7 @@ class BaseInvaders:
                     if item.remove_base:
                         self.bases.remove(item)
 
-                if self.general_timer % 2 == 0:
+                if self.general_timer % self.base_spawnrate == 0:
                     spawn = Base()
                     while spawn.type == self.last_spawn.type:
                         spawn = Base()
@@ -64,7 +75,7 @@ class BaseInvaders:
 
                 # Every 15 seconds
                 if self.general_timer % 15 == 0:
-                    self.current_animation = choice([LargeTestTube(), BunsenBurner(), Microscope(), TestTubeRack()])  # 9 different animations
+                    self.current_animation = LargeTestTube() #choice([LargeTestTube(), BunsenBurner(), Microscope(), TestTubeRack()])  # 9 different animations
 
                 # Switch the pos
                 if self.general_timer % 0.5 == 0:
@@ -82,13 +93,33 @@ class BaseInvaders:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE: self.pause_menu.run_menu(self.dis)
 
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.pause_button.mouse_on_button():
+                    self.pause_menu.run_menu(self.dis)
 
+        # Update Scoreboard
+        self.score_scoreboard.set_display_string(
+            (self.levelsystem.bases - self.levelsystem.bases_at_level(self.levelsystem.level),
+             (self.levelsystem.bases_at_level(self.levelsystem.level + 1) - self.levelsystem.bases_at_level(self.levelsystem.level)))
+        )
+        self.experience_scoreboard.set_display_string(self.experience)
+        self.levels_scoreboard.set_display_string(self.levelsystem.level)
 
-
-
-        if self.nuclease.regen_nuclease: self.nuclease = Nuclease()
-        self.character.handle_movement()
+        # Other Tasks
+        if self.nuclease.regen_nuclease: self.nuclease = Nuclease(self.nuclease_speed, self.nuclease_size_modifier)
         self.nuclease.handle_movement()
+
+        if self.character.handle_movement():
+            self.slide_iterator = 10
+            moving = True
+        else:
+            moving = False
+
+        # If user slide and not running
+        if not moving and self.slide_iterator:
+            self.character.slide(self.slide_iterator)
+            self.slide_iterator -= 1
+
 
     def draw_graphics(self):
         self.dis.blit(self.background, (0, 0))
@@ -98,9 +129,8 @@ class BaseInvaders:
         self.dis.blit(self.levels_scoreboard.get_image(), (self.levels_scoreboard.rect_x, self.levels_scoreboard.rect_y))  # Levels
         self.dis.blit(self.experience_scoreboard.get_image(), (self.experience_scoreboard.rect_x, self.experience_scoreboard.rect_y))  # Levels
 
-        # Other Items
-
-        level_info = self.level.get_level()
+        # Pause Button
+        self.dis.blit(self.pause_button.get_image(), (self.pause_button.rect_x, self.pause_button.rect_y))
 
         if self.current_animation is not None:
             self.current_animation.get_image()
@@ -122,6 +152,8 @@ class BaseInvaders:
         # Nuclease
         self.dis.blit(self.nuclease.get_image(), (self.nuclease.position_x, self.nuclease.position_y))
 
+
+
     def handle_collisions(self):
         self.handle_events()
 
@@ -130,7 +162,7 @@ class BaseInvaders:
             return
 
         character = pygame.Rect(self.character.hit_box[0], self.character.hit_box[1], self.character.hit_box[2], self.character.hit_box[3])
-        nuclease_rect = pygame.Rect(self.nuclease.position_x, self.nuclease.position_y, nuclease_dimensions[0], nuclease_dimensions[1])
+        nuclease_rect = pygame.Rect(self.nuclease.position_x, self.nuclease.position_y, nuclease_dimensions[0] * self.nuclease_size_modifier, nuclease_dimensions[1] * self.nuclease_size_modifier)
 
         # Base Collisions
         for item in self.bases:
@@ -153,8 +185,15 @@ class BaseInvaders:
                 got_base = self.objective.handle_collisions(item.type)
 
                 if got_base:
-                    self.points += 1
-                    self.level.bases -= 1
+                    self.experience += xp_increase_amount
+                    self.levelsystem.bases += 1
+
+                    result = self.levelsystem.update_level()
+
+                    # Increase difficulty @ certain level intervals
+                    if result:
+                        self.increase_difficulty()
+
                     self.base_timer = 0  # Reset the base timer if they caught the right one
 
                 item.remove_base = True
@@ -163,6 +202,23 @@ class BaseInvaders:
         if nuclease_rect.colliderect(character):
             print("COLLISION")
             self.game_over = True
+
+    def increase_difficulty(self):
+        # Increase the nuclease speed every level
+        if self.nuclease_speed[0] < 20 and self.nuclease_speed[1] < 20:
+            self.nuclease_speed[0] += 0.2
+            self.nuclease_speed[1] += 0.1
+
+        # Every 25 levels, make bases spawn slightly lower (Level 100 = 4 seconds)
+        if self.levelsystem.level % 25 == 0:
+            self.base_spawnrate += 0.5
+
+        # Every 10 levels decrement the amount of time per base (Level 100 = 15 seconds)
+        if self.levelsystem.level % 10 == 0:
+            self.objective.time_per_base -= 1
+
+        # Every level increase the size of the nuclease (Level 100 = Massive -- but fair)
+        self.nuclease_size_modifier += 0.1
 
 
 def base_invaders():

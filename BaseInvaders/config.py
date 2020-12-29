@@ -16,12 +16,11 @@ bases = {
 }
 
 nuclease_dimensions = 640, 640
-nuclease_dimensions = (round(nuclease_dimensions[0] / 6.8), round(nuclease_dimensions[1] / 6.8))
+nuclease_division_amount = 6.8
+nuclease_dimensions = (round(nuclease_dimensions[0] / nuclease_division_amount), round(nuclease_dimensions[1] / nuclease_division_amount))
 nuclease = load_anim_images('./BaseInvaders/resources/nuclease/Nuclease (<>).png', 1, 14)
 
 pygame.font.init()
 
-# Colours
-LEVEL_COLOUR = (99, 125, 144)
-level_font = pygame.font.SysFont('Filicudi', 110)
+xp_increase_amount = 10
 

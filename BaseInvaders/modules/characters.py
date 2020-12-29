@@ -49,7 +49,7 @@ class Character:
                 return
 
             self.position_x += self.change_amount                                               # Move right by the change amount (movement speed)
-            return
+            return True
 
         # If their pressed keys are "LEFT ARROW" or "A", move accordingly
         if self.pressed_keys[pygame.K_LEFT] or self.pressed_keys[ord('a')]:
@@ -59,7 +59,7 @@ class Character:
                 return
 
             self.position_x -= self.change_amount                                               # Move left by the change amount (movement speed)
-            return
+            return True
 
         # If none of those are their pressed keys, set state to idle
         self.state = 'idle'
@@ -90,6 +90,19 @@ class Character:
         method, however this abstract method is provided to
         clarify that to the program reader."""
         pass
+
+    def slide(self, slide_iterator):
+        if self.direction == 'right':
+            if not self.position_x + self.screen_bound_offset_right + self.change_amount < self.screen_width - 120:     # If the new position goes off right side of screen
+                return
+
+            self.position_x += 0.2 * slide_iterator
+
+        if self.direction == 'left':
+            if not self.position_x + self.screen_bound_offset_left + self.change_amount > 40:  # If the new position goes off left side of screen
+                return
+
+            self.position_x -= 0.2 * slide_iterator
 
 
 """
