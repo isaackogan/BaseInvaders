@@ -27,4 +27,3 @@ class EndGameOverlay:
         connect.close()
 
         return raw_data
-

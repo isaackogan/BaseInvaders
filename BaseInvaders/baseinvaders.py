@@ -156,8 +156,6 @@ class BaseInvaders:
         self.dis.blit(self.nuclease.get_image(), (self.nuclease.position_x, self.nuclease.position_y))
 
     def handle_collisions(self):
-        self.handle_events()
-
         # If player hitbox is null cancel collision checks
         if None in self.character.hit_box:
             return
@@ -250,23 +248,42 @@ class BaseInvaders:
 
         return character_choices[character]
 
-    def death_animation(self, clock):
+    def death_actions(self, clock):
         self.character.state = 'dead'
         self.character.state_pos = 1
 
-        # For 2 seconds
-        run_time = 2
+        death_actions = True
+        death_menu_time = 0
 
-        while run_time > 0:
-            for ev in pygame.event.get():
-                if ev.type == pygame.QUIT:
+        while death_actions:
+            print("me")
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     pygame.quit(), exit()
-                if ev.type == pygame.USEREVENT:
-                    run_time -= 0.01
+                if event.type == pygame.USEREVENT:
+                    death_menu_time += 0.01
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        death_actions = False
 
             self.draw_graphics()
+
+            # After 2 Seconds
+            if round(death_menu_time, 2) > 2:
+                self.dis.blit(
+                    franklin_gothic_medium_2.render(
+                        'Press SPACE to Continue',
+                        True, COLOR_WHITE
+                    ),
+                    (DISPLAY_X / 2 - franklin_gothic_medium_2.size('Press SPACE to Continue')[0] / 2, 410)
+                )
+                self.dis.blit(
+                    game_over, (DISPLAY_X / 2 - 320, 270)
+                )
+
             pygame.display.flip()
             clock.tick(20)
+
 
 def base_invaders():
     pygame.display.set_caption("Base Invaders")  # Setting the Caption
@@ -282,29 +299,17 @@ def base_invaders():
         run_start_menu()
 
         while not game_instance.game_over[0]:
+            game_instance.handle_events()
             game_instance.handle_collisions()
             game_instance.draw_graphics()
-
             pygame.display.flip()
             clock.tick(game_instance.speed)
 
         # Stuff to do if they died regularly (didn't choose to quit)
         if game_instance.game_over[1]:
-            # Run Death Animation
-            game_instance.death_animation(clock)
-            game_instance.dis.blit(
-                franklin_gothic_medium_2.render(
-                    'Press SPACE to Continue',
-                    True, COLOR_WHITE
-                ),
-                (DISPLAY_X / 2 - franklin_gothic_medium_2.size('Press SPACE to Continue')[0] / 2, 400)
-            )
-            game_instance.dis.blit(
-                game_over, (DISPLAY_X / 2 - 100, 300)
-            )
-            pygame.display.flip()
-            while True:
-                pass
+
+            # Run Death Actions
+            game_instance.death_actions(clock)
 
         database_insert(
             game_instance.levelsystem.bases,
@@ -315,13 +320,6 @@ def base_invaders():
 
         )
 
-        connect_db = sqlite3.connect('./BaseInvaders/statistics.db')
-        cursor_db = connect_db.cursor()
-
-        cursor_db.execute(f"SELECT * FROM statistics")
-        results = cursor_db.fetchall()
-        print(results)
-        connect_db.close()
         EndGameOverlay().get_statistics()
 
 def database_insert(total_bases, xp, level, time, date):

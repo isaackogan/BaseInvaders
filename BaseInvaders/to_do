@@ -44,3 +44,5 @@ convert main.py into class based system capable of supporting more than just bas
 remove rounded rectangle support cuz it's literally not used
 
 move death animation within class
+
+change character offsets for death when flipped
