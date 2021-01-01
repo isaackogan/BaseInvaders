@@ -89,3 +89,16 @@ def rounded_rectangle(r_rect, r_colour, r_radius=0.6):  # A simple function to c
 
     # Call Example:
     # rounded_rectangle((20, 20, 1220, 130), DARK_TURQUOISE, 0.2)
+
+def parse_time(seconds):
+    """
+    :param seconds: The amount of seconds passed (can be float, int)
+    :return: Returns the formatted time in HH:MM:SS
+    """
+    seconds %= 24 * 3600  # Getting Days
+    hour = seconds // 3600              # Creating Hours
+    seconds %= 3600                     # Getting Minutes
+    minutes = seconds // 60             # Creating Minutes
+    seconds %= 60                       # Getting Seconds
+
+    return "%d:%02d:%02d" % (hour, minutes, seconds)        # Returning the values

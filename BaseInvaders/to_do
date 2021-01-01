@@ -36,3 +36,10 @@ High Score (XP)
 move "display" to init from run_menu in pause menu
 
 organize character classes into separate modules
+
+update the loading screen
+
+convert main.py into class based system capable of supporting more than just base invaders
+
+remove rounded rectangle support cuz it's literally not used
+

@@ -2,7 +2,6 @@ import pygame
 from BaseInvaders.resources.characters.load_characters import *
 from BaseInvaders.modules.resourcetools import load_anim_images
 
-caption_image = pygame.image.load('./BaseInvaders/resources/icon.png')
 ground = 700
 
 base_dimensions = 116, 350

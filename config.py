@@ -27,3 +27,5 @@ franklin_gothic_medium = pygame.font.Font("./BaseInvaders/resources/fonts/Frankl
 
 franklin_gothic_medium_2 = pygame.font.Font("./BaseInvaders/resources/fonts/Franklin Gothic.ttf", 50)
 franklin_gothic_large_2 = pygame.font.Font("./BaseInvaders/resources/fonts/Franklin Gothic.ttf", 140)
+
+caption_image = pygame.image.load('./BaseInvaders/resources/icon.png')

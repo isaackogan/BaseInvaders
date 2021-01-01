@@ -20,7 +20,7 @@ boy_states = {
     'walk': load_anim_images('./BaseInvaders/resources/characters/standard/boy/walk/Walk (<>).png', 1, 15, boy_dimensions),
 }
 
-"""# Girl States
+# Girl States
 girl_division_amount = 3
 
 girl_states = {
@@ -126,4 +126,3 @@ dog_animal_states = {
     'run': load_anim_images('./BaseInvaders/resources/characters/animal/dog/run/Run (<>).png', 1, 8, (547 / animal_division_amount, 481 / animal_division_amount)),
     'walk': load_anim_images('./BaseInvaders/resources/characters/animal/dog/walk/Walk (<>).png', 1, 10, (547 / animal_division_amount, 481 / animal_division_amount)),
 }
-"""

@@ -8,14 +8,16 @@ from BaseInvaders.modules.background import *
 from BaseInvaders.modules.scoreboard import *
 from BaseInvaders.modules.pausemenu import *
 from BaseInvaders.modules.menu_screen.menuscreen import run_start_menu
-
+import json
+from BaseInvaders.modules.resourcetools import parse_time
+from time import strftime
 
 class BaseInvaders:
     def __init__(self):
         self.display_x, self.display_y = DISPLAY_X, DISPLAY_Y
         self.background = pygame.transform.scale(pygame.image.load('./BaseInvaders/resources/BaseInvaders.png'), (self.display_x, self.display_y))
         self.clock = None
-        self.character = Boy()
+        self.character = self.set_character()
         self.speed = 30
         self.pressed_keys = pygame.key.get_pressed()
         self.general_timer = 0
@@ -27,7 +29,6 @@ class BaseInvaders:
         self.current_animation = None
 
         self.game_over = False
-
         self.levelsystem = LevelsSystem()
 
         self.score_scoreboard = ScoreSB()
@@ -51,7 +52,6 @@ class BaseInvaders:
 
         self.collisions = 0
 
-        self.menu_feedback = None
 
     def handle_events(self):
 
@@ -80,7 +80,7 @@ class BaseInvaders:
 
                 # Every 15 seconds
                 if self.general_timer % 15 == 0:
-                    self.current_animation = LargeTestTube() #choice([LargeTestTube(), BunsenBurner(), Microscope(), TestTubeRack()])  # 9 different animations
+                    self.current_animation = LargeTestTube()  # choice([LargeTestTube(), BunsenBurner(), Microscope(), TestTubeRack()])  # 9 different animations
 
                 # Switch the pos
                 if self.general_timer % 0.5 == 0:
@@ -92,8 +92,6 @@ class BaseInvaders:
                 if self.objective.time_left <= 0:
                     self.game_over = True
 
-                if self.pause_menu.end_game:
-                    self.game_over = True
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
@@ -125,7 +123,6 @@ class BaseInvaders:
         if not moving and self.slide_iterator:
             self.character.slide(self.slide_iterator)
             self.slide_iterator -= 1
-
 
     def draw_graphics(self):
         self.dis.blit(self.background, (0, 0))
@@ -233,9 +230,28 @@ class BaseInvaders:
         # Every level increase the size of the nuclease (Level 100 = Massive -- but fair)
         self.nuclease_size_modifier += 0.1
 
+    def set_character(self):
+        character_choices = {
+            'standard_boy': Boy(),
+            'standard_girl': Girl(),
+            'zombie_boy': ZombieBoy(),
+            'zombie_girl': ZombieGirl(),
+            'ninja_boy': NinjaBoy(),
+            'ninja_girl': NinjaGirl(),
+            'cat_animal': AnimalCat(),
+            'dog_animal': AnimalDog(),
+            'adventure_boy': AdventureBoy(),
+            'adventure_girl': AdventureGirl()
+        }
+        with open('./BaseInvaders/preferences.json') as data:
+            preferences = json.load(data)
+
+        character = preferences.get('preferences').get('character')
+
+        return character_choices[character]
 
 def base_invaders():
-    pygame.display.set_caption("Base Invaders"), pygame.display.set_icon(caption_image)  # Setting the caption & Icon
+    pygame.display.set_caption("Base Invaders")  # Setting the Caption
 
     while True:
         clock = pygame.time.Clock()
@@ -254,6 +270,29 @@ def base_invaders():
             pygame.display.flip()
             clock.tick(game_instance.speed)
 
+        database_insert(
+            game_instance.levelsystem.bases,
+            game_instance.experience,
+            game_instance.levelsystem.level,
+            parse_time(game_instance.general_timer),
+            strftime("%D")
 
+        )
 
+        connect_db = sqlite3.connect('./BaseInvaders/statistics.db')
+        cursor_db = connect_db.cursor()
 
+        cursor_db.execute(f"SELECT * FROM statistics")
+        results = cursor_db.fetchall()
+        print(results)
+        connect_db.close()
+
+def database_insert(total_bases, xp, level, time, date):
+
+    # Open Connection
+    connect_db = sqlite3.connect('./BaseInvaders/statistics.db')
+    cursor_db = connect_db.cursor()
+
+    cursor_db.execute(f"INSERT INTO statistics VALUES (:bases, :xp, :level, :time, :date)", {'bases': total_bases, 'xp': xp, 'level': level, 'time': time, 'date': date})
+
+    connect_db.commit(), connect_db.close()
