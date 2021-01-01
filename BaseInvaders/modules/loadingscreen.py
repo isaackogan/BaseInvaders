@@ -2,7 +2,7 @@ import pygame
 
 pygame.init()
 
-loading_screen_image = pygame.image.load('./BaseInvaders/modules/loading_screen/LoadingScreen.png')
+loading_screen_image = pygame.image.load('./BaseInvaders/resources/LoadingScreen.png')
 
 
 def loading_screen(dis, percent_loaded):

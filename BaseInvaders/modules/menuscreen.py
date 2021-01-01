@@ -3,7 +3,7 @@ import pygame
 from main import dis
 import webbrowser
 
-menu_screen_image = pygame.image.load('./BaseInvaders/modules/menu_screen/MenuScreen.png')
+menu_screen_image = pygame.image.load('./BaseInvaders/resources/MenuScreen.png')
 
 
 class MenuScreen:

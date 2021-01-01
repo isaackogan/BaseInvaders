@@ -1,6 +1,6 @@
 from config import *
 import pygame
-from BaseInvaders.modules.loading_screen.loadingscreen import loading_screen
+from BaseInvaders.modules.loadingscreen import loading_screen
 from config import caption_image
 import sqlite3
 from time import sleep

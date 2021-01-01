@@ -82,8 +82,6 @@ class PauseButton:
         #self.rect_data.blit(self.text_data, (self.text_x, self.text_y))
         return self.completed_surface_data
 
-
-
 class PauseMenu:
     def __init__(self):
         self.dis = None

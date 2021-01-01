@@ -1,16 +1,16 @@
-from BaseInvaders.modules.objectives import *
-from BaseInvaders.modules.characters import *
-from BaseInvaders.modules.bases import *
-from config import DISPLAY_X, DISPLAY_Y
-from BaseInvaders.modules.neucleases import Nuclease
 from main import *
 from BaseInvaders.modules.background import *
 from BaseInvaders.modules.scoreboard import *
 from BaseInvaders.modules.pausemenu import *
-from BaseInvaders.modules.menu_screen.menuscreen import run_start_menu
+from BaseInvaders.modules.menuscreen import run_start_menu
 import json
 from BaseInvaders.modules.resourcetools import parse_time
 from time import strftime
+from BaseInvaders.modules.endmenu import *
+from BaseInvaders.modules.characters import *
+from BaseInvaders.modules.bases import *
+from BaseInvaders.modules.objectives import *
+from BaseInvaders.modules.neucleases import *
 
 class BaseInvaders:
     def __init__(self):
@@ -28,7 +28,7 @@ class BaseInvaders:
         self.dis = dis
         self.current_animation = None
 
-        self.game_over = False
+        self.game_over = False, False
         self.levelsystem = LevelsSystem()
 
         self.score_scoreboard = ScoreSB()
@@ -90,16 +90,16 @@ class BaseInvaders:
                 # Determines time left and runs checks
                 self.objective.time_left = round(self.objective.time_per_base - self.base_timer, 2)
                 if self.objective.time_left <= 0:
-                    self.game_over = True
+                    self.game_over = True, True
 
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    self.game_over = True if self.pause_menu.run_menu(self.dis) else self.game_over
+                    self.game_over = True, False if self.pause_menu.run_menu(self.dis) else self.game_over
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.pause_button.mouse_on_button():
-                    self.game_over = True if self.pause_menu.run_menu(self.dis) else self.game_over
+                    self.game_over = True, False if self.pause_menu.run_menu(self.dis) else self.game_over
 
         # Update Scoreboard
         self.score_scoreboard.set_display_string(
@@ -124,7 +124,7 @@ class BaseInvaders:
             self.character.slide(self.slide_iterator)
             self.slide_iterator -= 1
 
-    def draw_graphics(self):
+    def draw_graphics(self, increment_character_state=True):
         self.dis.blit(self.background, (0, 0))
 
         # Scoreboard Items
@@ -139,9 +139,9 @@ class BaseInvaders:
             self.current_animation.get_image()
             self.dis.blit(self.current_animation.current_image, (self.current_animation.x, self.current_animation.y))
 
-        self.character.update_image()
+        self.character.update_image(increment_character_state)
 
-        pygame.draw.rect(self.dis, (0, 0, 0), (self.character.hit_box[0], self.character.hit_box[1], self.character.hit_box[2], self.character.hit_box[3]))
+        #pygame.draw.rect(self.dis, (0, 0, 0), (self.character.hit_box[0], self.character.hit_box[1], self.character.hit_box[2], self.character.hit_box[3]))
         self.dis.blit(self.character.display_image, (self.character.position_x - self.character.flip_offset, self.character.position_y))
 
         # Calculate base timer
@@ -211,7 +211,7 @@ class BaseInvaders:
 
             self.collisions += 1
             if self.collisions >= 10:
-                self.game_over = True
+                self.game_over = True, True
 
     def increase_difficulty(self):
         # Increase the nuclease speed every level
@@ -250,6 +250,24 @@ class BaseInvaders:
 
         return character_choices[character]
 
+    def death_animation(self, clock):
+        self.character.state = 'dead'
+        self.character.state_pos = 1
+
+        # For 2 seconds
+        run_time = 2
+
+        while run_time > 0:
+            for ev in pygame.event.get():
+                if ev.type == pygame.QUIT:
+                    pygame.quit(), exit()
+                if ev.type == pygame.USEREVENT:
+                    run_time -= 0.01
+
+            self.draw_graphics()
+            pygame.display.flip()
+            clock.tick(20)
+
 def base_invaders():
     pygame.display.set_caption("Base Invaders")  # Setting the Caption
 
@@ -263,12 +281,30 @@ def base_invaders():
 
         run_start_menu()
 
-        while not game_instance.game_over:
+        while not game_instance.game_over[0]:
             game_instance.handle_collisions()
             game_instance.draw_graphics()
 
             pygame.display.flip()
             clock.tick(game_instance.speed)
+
+        # Stuff to do if they died regularly (didn't choose to quit)
+        if game_instance.game_over[1]:
+            # Run Death Animation
+            game_instance.death_animation(clock)
+            game_instance.dis.blit(
+                franklin_gothic_medium_2.render(
+                    'Press SPACE to Continue',
+                    True, COLOR_WHITE
+                ),
+                (DISPLAY_X / 2 - franklin_gothic_medium_2.size('Press SPACE to Continue')[0] / 2, 400)
+            )
+            game_instance.dis.blit(
+                game_over, (DISPLAY_X / 2 - 100, 300)
+            )
+            pygame.display.flip()
+            while True:
+                pass
 
         database_insert(
             game_instance.levelsystem.bases,
@@ -286,6 +322,7 @@ def base_invaders():
         results = cursor_db.fetchall()
         print(results)
         connect_db.close()
+        EndGameOverlay().get_statistics()
 
 def database_insert(total_bases, xp, level, time, date):
 

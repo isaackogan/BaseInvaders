@@ -65,13 +65,13 @@ class Character:
         self.state = 'idle'
         return
 
-    def update_image(self):
+    def update_image(self, increment_position=True):
         """
         Get the valid image for the user based on their state
         :return: No returns, only updates information within the object
         """
         # Get the current state
-        self.get_state()
+        self.get_state(increment_position)
 
         # If the direction is right
         if self.direction == 'right':
@@ -83,7 +83,7 @@ class Character:
         self.flip_offset = self.offsets[self.state]                                     # Set the X offset due to image transformation
 
     @abstractmethod
-    def get_state(self):
+    def get_state(self, increment_state=True):
         """
         Abstract method to create valid value for get_state.
         In reality, we pull from the child class for this

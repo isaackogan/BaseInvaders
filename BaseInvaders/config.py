@@ -21,5 +21,7 @@ nuclease = load_anim_images('./BaseInvaders/resources/nuclease/Nuclease (<>).png
 
 pygame.font.init()
 
+game_over = pygame.image.load('./BaseInvaders/resources/GameOver.png')
+
 xp_increase_amount = 10
 
