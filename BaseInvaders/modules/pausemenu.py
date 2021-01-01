@@ -21,7 +21,7 @@ class PauseButton:
         self.border_radius = 0.35
 
         self.text = "II"
-        self.font = pause_button_font
+        self.font = franklin_gothic_medium
 
         self.rect_color = COLOR_TAN
         self.border_color = COLOR_BURLYWOOD
@@ -118,8 +118,8 @@ class PauseMenu:
                         if self.buttons[button] == self.buttons['resume_button']:
                             self.stop_menu = True
                         if self.buttons[button] == self.buttons['mainmenu_button']:
+                            print('hi')
                             self.end_game = True
-                            print("End Game")
                         if self.buttons[button] == self.buttons['credits_button']:
                             webbrowser.open('https://github.com/isaackogan/BaseInvaders', new=2)
                         if self.buttons[button] == self.buttons['quitgame_button']:
@@ -150,11 +150,16 @@ class PauseMenu:
 
     def run_menu(self, display):
         self.dis = display
+        display_copy = display.copy()
         self.get_background(display, 2)
 
         while True:
 
             self.handle_events()
+
+            if self.end_game:
+                return self.end_game
+
             self.dis.blit(self.background, (0, 0))
 
             for each in self.buttons:
@@ -163,8 +168,38 @@ class PauseMenu:
             pygame.display.flip()
 
             if self.stop_menu:
+                self.count_in(display_copy)
+
+                # Reset the object & break
                 self.__init__()
                 break
+
+    def count_in(self, copy):
+        count, continue_loop, count_string = 0, True, None
+
+        while continue_loop:
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit(), exit()
+                if event.type == pygame.USEREVENT:
+                    count += 0.01
+
+                    self.dis.blit(copy, (0, 0))
+
+                    if 0.5 < count < 1.0: count_string = "3"
+                    if 1.0 < count < 1.5: count_string = "2"
+                    if 1.5 < count < 2.0: count_string = "1"
+                    if 2.0 < count:
+                        continue_loop = False
+                        break
+
+                    # If there's a string to display (error locking)
+                    if count_string is not None:
+                        font_size = franklin_gothic_large.size(count_string)
+                        self.dis.blit(franklin_gothic_large.render(count_string, True, COLOR_BGRD_BLUE_DARK), (DISPLAY_X / 2 - font_size[0] / 2, 150))
+
+            pygame.display.flip()
 
 
 class PauseMenuButtons:
@@ -189,13 +224,13 @@ class PauseMenuButtons:
 
     def get_text_location(self):
         """Returns text, position when centered"""
-        return pause_menu_font.size(self.text)
+        return bahnschrift_font.size(self.text)
 
     def get_image(self):
 
         pygame.draw.rect(self.sub_surface, self.button_colour, pygame.Rect(0, 0, self.button_x, self.button_y))
 
-        self.sub_surface.blit(pause_menu_font.render(
+        self.sub_surface.blit(bahnschrift_font.render(
             self.text, True, self.text_colour), (
             (
                     self.button_width / 2) - (self.get_text_location()[0] / 2), (self.button_height / 2) - (self.get_text_location()[1] / 2)

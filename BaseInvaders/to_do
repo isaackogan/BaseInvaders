@@ -2,8 +2,6 @@
 
 3. Add Biology notes to the pre-game when a player clicks START to make it more educational (talk about PCR)
 
-7. Show level count as background text under the main "Base Invaders" title in a matching blue
-8. Add evil mob to game that kills players and ends the game
 9. Add an end game screen
 11. Make a loading screen for resources (seriously, lol) -- change characters to import DURING GAME loading screen as a loading screen process
     a) Don't forget we need to support more than one game so make sure the loading screen is under base invaders & not main\
@@ -13,5 +11,28 @@ change the timer's colour when it gets close to being out of time
 
 12. Dummy event handling for loading screen to stop blue loading wheel from appearing
 
-consider removing the base
-3 second count in when you unpause
+consider removing the base modulator
+
+Database Information:
+
+The game will have profiles, each profile storing its own stats
+
+MAIN MENU:
+- Character
+- Statistics
+- Start Game
+
+
+
+
+
+Table Layout:
+PROFILE:HIGH SCORE:TOTAL XP ALL-TIME:CHARACTER
+
+Custom "Starting up base generators" message on game start + count in + some sort of animation
+
+High Score (XP)
+
+move "display" to init from run_menu in pause menu
+
+organize character classes into separate modules

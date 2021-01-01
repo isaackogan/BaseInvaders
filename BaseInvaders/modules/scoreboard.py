@@ -49,8 +49,8 @@ class ScoreBoardItem:
         return self.completed_surface_data
 
     def get_text(self):
-        text_size = scoreboard_font.size(self.display_string)
-        text = scoreboard_font.render(self.display_string, True, COLOR_BROWN)
+        text_size = franklin_gothic_small.size(self.display_string)
+        text = franklin_gothic_small.render(self.display_string, True, COLOR_BROWN)
 
         self.text_x = ((self.rect_width + (self.border_thickness * 2)) / 2) - (text_size[0] / 2)
         self.text_y = ((self.rect_height + (self.border_thickness * 2)) / 2 - (text_size[1] / 2))

@@ -7,6 +7,7 @@ from main import *
 from BaseInvaders.modules.background import *
 from BaseInvaders.modules.scoreboard import *
 from BaseInvaders.modules.pausemenu import *
+from BaseInvaders.modules.menu_screen.menuscreen import run_start_menu
 
 
 class BaseInvaders:
@@ -47,6 +48,10 @@ class BaseInvaders:
         pygame.time.set_timer(pygame.USEREVENT, 10)
 
         self.slide_iterator = 0
+
+        self.collisions = 0
+
+        self.menu_feedback = None
 
     def handle_events(self):
 
@@ -91,11 +96,12 @@ class BaseInvaders:
                     self.game_over = True
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE: self.pause_menu.run_menu(self.dis)
+                if event.key == pygame.K_ESCAPE:
+                    self.game_over = True if self.pause_menu.run_menu(self.dis) else self.game_over
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.pause_button.mouse_on_button():
-                    self.pause_menu.run_menu(self.dis)
+                    self.game_over = True if self.pause_menu.run_menu(self.dis) else self.game_over
 
         # Update Scoreboard
         self.score_scoreboard.set_display_string(
@@ -138,7 +144,7 @@ class BaseInvaders:
 
         self.character.update_image()
 
-        # pygame.draw.rect(self.dis, (0, 0, 0), (self.character.hit_box[0], self.character.hit_box[1], self.character.hit_box[2], self.character.hit_box[3]))
+        pygame.draw.rect(self.dis, (0, 0, 0), (self.character.hit_box[0], self.character.hit_box[1], self.character.hit_box[2], self.character.hit_box[3]))
         self.dis.blit(self.character.display_image, (self.character.position_x - self.character.flip_offset, self.character.position_y))
 
         # Calculate base timer
@@ -152,8 +158,6 @@ class BaseInvaders:
         # Nuclease
         self.dis.blit(self.nuclease.get_image(), (self.nuclease.position_x, self.nuclease.position_y))
 
-
-
     def handle_collisions(self):
         self.handle_events()
 
@@ -162,7 +166,13 @@ class BaseInvaders:
             return
 
         character = pygame.Rect(self.character.hit_box[0], self.character.hit_box[1], self.character.hit_box[2], self.character.hit_box[3])
-        nuclease_rect = pygame.Rect(self.nuclease.position_x, self.nuclease.position_y, nuclease_dimensions[0] * self.nuclease_size_modifier, nuclease_dimensions[1] * self.nuclease_size_modifier)
+
+        nuclease_rect = pygame.Rect(
+            self.nuclease.position_x,
+            self.nuclease.position_y,
+            nuclease_dimensions[0] * self.nuclease_size_modifier,
+            nuclease_dimensions[1] * self.nuclease_size_modifier
+        )
 
         # Base Collisions
         for item in self.bases:
@@ -201,7 +211,10 @@ class BaseInvaders:
         # Nuclease Collision with Player
         if nuclease_rect.colliderect(character):
             print("COLLISION")
-            self.game_over = True
+
+            self.collisions += 1
+            if self.collisions >= 10:
+                self.game_over = True
 
     def increase_difficulty(self):
         # Increase the nuclease speed every level
@@ -223,16 +236,24 @@ class BaseInvaders:
 
 def base_invaders():
     pygame.display.set_caption("Base Invaders"), pygame.display.set_icon(caption_image)  # Setting the caption & Icon
-    clock = pygame.time.Clock()
-    pygame.time.set_timer(pygame.USEREVENT, 10)  # 10ms
-
-    # Initial Values
-    game_instance = BaseInvaders()
-    game_instance.objective = BaseObjective()
 
     while True:
-        game_instance.handle_collisions()
-        game_instance.draw_graphics()
+        clock = pygame.time.Clock()
+        pygame.time.set_timer(pygame.USEREVENT, 10)  # 10ms
 
-        pygame.display.flip()
-        clock.tick(game_instance.speed)
+        # Initial Values
+        game_instance = BaseInvaders()
+        game_instance.objective = BaseObjective()
+
+        run_start_menu()
+
+        while not game_instance.game_over:
+            game_instance.handle_collisions()
+            game_instance.draw_graphics()
+
+            pygame.display.flip()
+            clock.tick(game_instance.speed)
+
+
+
+
