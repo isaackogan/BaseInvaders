@@ -131,7 +131,7 @@ class Boy(Character):
 
         # Settings (Hardcoded)
         self.state = 'idle'                                                     # Default state is idle when initialized
-        self.offsets = {'idle': 122, 'run': 120, 'walk': 121, 'dead': 20}       # Default offsets for the character's hitbox on the X coordinate if flipped
+        self.offsets = {'idle': 122, 'run': 120, 'walk': 121, 'dead': 100}       # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y = ground - 177                                          # Set the default spawn position @ Y coordinate
 
     def get_state(self, increment=True):
