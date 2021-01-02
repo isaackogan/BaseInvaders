@@ -2,9 +2,10 @@ from config import *
 import pygame
 from main import dis
 import webbrowser
+import sqlite3
 
 menu_screen_image = pygame.image.load('./BaseInvaders/resources/MenuScreen.png')
-
+from BaseInvaders.modules.mainmenu.statisticspage import MenuStatisticsPage
 
 class MenuScreen:
     def __init__(self):
@@ -31,6 +32,8 @@ class MenuScreen:
                         # Play Button
                         if idx == 0:
                             self.run_menu = False
+                        if idx == 2:
+                            MenuStatisticsPage().run_menu()
                         if idx == 3:
                             webbrowser.open('https://github.com/isaackogan/BaseInvaders', new=2)
                         if idx == 4:
@@ -141,5 +144,4 @@ def run_start_menu():
         smenu.draw_graphics()
         pygame.display.flip()
 
-    return smenu.return_to_menu
-
+    return smenu.run_menu

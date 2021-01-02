@@ -1,8 +1,7 @@
-from main import *
 from BaseInvaders.modules.background import *
 from BaseInvaders.modules.scoreboard import *
 from BaseInvaders.modules.pausemenu import *
-from BaseInvaders.modules.menuscreen import run_start_menu
+from BaseInvaders.modules.mainmenu.menuscreen import run_start_menu
 import json
 from BaseInvaders.modules.resourcetools import parse_time
 from time import strftime
@@ -11,6 +10,7 @@ from BaseInvaders.modules.characters import *
 from BaseInvaders.modules.bases import *
 from BaseInvaders.modules.objectives import *
 from BaseInvaders.modules.neucleases import *
+
 
 class BaseInvaders:
     def __init__(self):
@@ -52,7 +52,6 @@ class BaseInvaders:
 
         self.collisions = 0
 
-
     def handle_events(self):
 
         for event in pygame.event.get():
@@ -92,14 +91,15 @@ class BaseInvaders:
                 if self.objective.time_left <= 0:
                     self.game_over = True, True
 
-
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    self.game_over = True, False if self.pause_menu.run_menu(self.dis) else self.game_over
+                    if self.pause_menu.run_menu() is True:
+                        self.game_over = True, False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.pause_button.mouse_on_button():
-                    self.game_over = True, False if self.pause_menu.run_menu(self.dis) else self.game_over
+                    if self.pause_menu.run_menu() is True:
+                        self.game_over = True, False
 
         # Update Scoreboard
         self.score_scoreboard.set_display_string(
@@ -141,7 +141,7 @@ class BaseInvaders:
 
         self.character.update_image(increment_character_state)
 
-        #pygame.draw.rect(self.dis, (0, 0, 0), (self.character.hit_box[0], self.character.hit_box[1], self.character.hit_box[2], self.character.hit_box[3]))
+        # pygame.draw.rect(self.dis, (0, 0, 0), (self.character.hit_box[0], self.character.hit_box[1], self.character.hit_box[2], self.character.hit_box[3]))
         self.dis.blit(self.character.display_image, (self.character.position_x - self.character.flip_offset, self.character.position_y))
 
         # Calculate base timer
@@ -256,33 +256,45 @@ class BaseInvaders:
         death_menu_time = 0
 
         while death_actions:
-            print("me")
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit(), exit()
                 if event.type == pygame.USEREVENT:
                     death_menu_time += 0.01
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
+                    if event.key in [pygame.K_SPACE, pygame.K_ESCAPE]:
                         death_actions = False
 
             self.draw_graphics()
 
-            # After 2 Seconds
-            if round(death_menu_time, 2) > 2:
-                self.dis.blit(
-                    franklin_gothic_medium_2.render(
-                        'Press SPACE to Continue',
-                        True, COLOR_WHITE
-                    ),
-                    (DISPLAY_X / 2 - franklin_gothic_medium_2.size('Press SPACE to Continue')[0] / 2, 410)
-                )
+            if (1 < round(death_menu_time, 2) < 2) or (3 < round(death_menu_time, 2) < 4) or 5 < round(death_menu_time, 2) < 6:
                 self.dis.blit(
                     game_over, (DISPLAY_X / 2 - 320, 270)
                 )
 
+            if round(death_menu_time, 2) > 7:
+                death_actions = False
+
             pygame.display.flip()
-            clock.tick(20)
+            clock.tick(self.speed)
+
+    def db_gamestats_insert(self):
+
+        # Open Connection
+        connect_db = sqlite3.connect('./BaseInvaders/statistics.db')
+        cursor_db = connect_db.cursor()
+
+        cursor_db.execute(f"INSERT INTO statistics VALUES (:bases, :xp, :level, :time, :date)",
+                          {
+                              'bases': self.levelsystem.bases,
+                              'xp': self.experience,
+                              'level': self.levelsystem.level,
+                              'time': parse_time(self.general_timer),
+                              'date': strftime("%D")
+                          }
+                          )
+
+        connect_db.commit(), connect_db.close()
 
 
 def base_invaders():
@@ -296,7 +308,8 @@ def base_invaders():
         game_instance = BaseInvaders()
         game_instance.objective = BaseObjective()
 
-        run_start_menu()
+        while run_start_menu():
+            pass
 
         while not game_instance.game_over[0]:
             game_instance.handle_events()
@@ -306,28 +319,8 @@ def base_invaders():
             clock.tick(game_instance.speed)
 
         # Stuff to do if they died regularly (didn't choose to quit)
-        if game_instance.game_over[1]:
+        if game_instance.game_over[1]:  game_instance.death_actions(clock)
+        game_instance.db_gamestats_insert()
 
-            # Run Death Actions
-            game_instance.death_actions(clock)
-
-        database_insert(
-            game_instance.levelsystem.bases,
-            game_instance.experience,
-            game_instance.levelsystem.level,
-            parse_time(game_instance.general_timer),
-            strftime("%D")
-
-        )
-
-        EndGameOverlay().get_statistics()
-
-def database_insert(total_bases, xp, level, time, date):
-
-    # Open Connection
-    connect_db = sqlite3.connect('./BaseInvaders/statistics.db')
-    cursor_db = connect_db.cursor()
-
-    cursor_db.execute(f"INSERT INTO statistics VALUES (:bases, :xp, :level, :time, :date)", {'bases': total_bases, 'xp': xp, 'level': level, 'time': time, 'date': date})
-
-    connect_db.commit(), connect_db.close()
+        while run_end_menu():
+            pass

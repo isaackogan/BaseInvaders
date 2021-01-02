@@ -5,7 +5,7 @@ from io import StringIO, BytesIO
 from config import *
 import webbrowser
 from BaseInvaders.modules.resourcetools import rounded_rectangle
-
+from main import dis
 
 class PauseButton:
     """Responsible for displaying scoreboard items (not calculating values in them)"""
@@ -84,7 +84,7 @@ class PauseButton:
 
 class PauseMenu:
     def __init__(self):
-        self.dis = None
+        self.dis = dis
         self.background = None
 
         self.stop_menu = False
@@ -92,7 +92,7 @@ class PauseMenu:
 
         self.buttons = {
             'resume_button': Resume(),
-            'mainmenu_button': MainMenu(),
+            'endgame_button': EndGame(),
             'credits_button': Credits(),
             'quitgame_button': QuitGame()
         }
@@ -115,7 +115,7 @@ class PauseMenu:
                             (self.buttons[button].button_y < mouse_y < (self.buttons[button].button_y + self.buttons[button].button_height)):
                         if self.buttons[button] == self.buttons['resume_button']:
                             self.stop_menu = True
-                        if self.buttons[button] == self.buttons['mainmenu_button']:
+                        if self.buttons[button] == self.buttons['endgame_button']:
                             print('hi')
                             self.end_game = True
                         if self.buttons[button] == self.buttons['credits_button']:
@@ -146,10 +146,9 @@ class PauseMenu:
         os.remove(path)
         return self.background
 
-    def run_menu(self, display):
-        self.dis = display
-        display_copy = display.copy()
-        self.get_background(display, 2)
+    def run_menu(self):
+        display_copy = self.dis.copy()
+        self.get_background(self.dis, 2)
 
         while True:
 
@@ -253,10 +252,10 @@ class Credits(PauseMenuButtons):
         self.button_y = 315
 
 
-class MainMenu(PauseMenuButtons):
+class EndGame(PauseMenuButtons):
     def __init__(self):
         PauseMenuButtons.__init__(self)
-        self.text = "Main Menu"
+        self.text = "End Game"
         self.create_surface()
         self.button_y = 415
 

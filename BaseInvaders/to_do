@@ -2,10 +2,6 @@
 
 3. Add Biology notes to the pre-game when a player clicks START to make it more educational (talk about PCR)
 
-9. Add an end game screen
-11. Make a loading screen for resources (seriously, lol) -- change characters to import DURING GAME loading screen as a loading screen process
-    a) Don't forget we need to support more than one game so make sure the loading screen is under base invaders & not main\
-
 go thru all models and assign an offset for bounding box
 change the timer's colour when it gets close to being out of time
 
@@ -35,14 +31,6 @@ High Score (XP)
 
 move "display" to init from run_menu in pause menu
 
-organize character classes into separate modules
-
 update the loading screen
-
-convert main.py into class based system capable of supporting more than just base invaders
-
-remove rounded rectangle support cuz it's literally not used
-
-move death animation within class
 
 change character offsets for death when flipped
