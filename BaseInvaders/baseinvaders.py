@@ -10,7 +10,7 @@ from BaseInvaders.modules.characters import *
 from BaseInvaders.modules.bases import *
 from BaseInvaders.modules.objectives import *
 from BaseInvaders.modules.neucleases import *
-
+from BaseInvaders.modules.mainmenu.tutorialslides import Tutorial
 
 class BaseInvaders:
     def __init__(self):
@@ -313,6 +313,18 @@ def base_invaders():
             pass
 
         game_instance.character = game_instance.set_character()
+
+        with open('./BaseInvaders/resources/user_data.json') as data:
+            preferences = json.load(data)
+
+        first_game_bool = preferences.get('first_game')
+
+        if first_game_bool == "True":
+            Tutorial().run_menu()
+
+        with open('./BaseInvaders/resources/user_data.json', 'w') as data:
+            preferences['first_game'] = "False"
+            json.dump(preferences, data)
 
         while not game_instance.game_over[0]:
             game_instance.handle_events()

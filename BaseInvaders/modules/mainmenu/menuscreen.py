@@ -5,6 +5,8 @@ import webbrowser
 import sqlite3
 import json
 from BaseInvaders.modules.characters import *
+from BaseInvaders.modules.mainmenu.tutorialslides import Tutorial
+
 
 menu_screen_image = pygame.image.load('./BaseInvaders/resources/MenuScreen.png')
 from BaseInvaders.modules.mainmenu.statisticspage import MenuStatisticsPage
@@ -48,6 +50,8 @@ class MenuScreen:
                         # Play Button
                         if idx == 0:
                             self.run_menu = False
+                        if idx == 1:
+                            Tutorial().run_menu()
                         if idx == 2:
                             self.statistics_page.run_menu()
                         if idx == 3:

@@ -19,6 +19,9 @@ nuclease_division_amount = 6.8
 nuclease_dimensions = (round(nuclease_dimensions[0] / nuclease_division_amount), round(nuclease_dimensions[1] / nuclease_division_amount))
 nuclease = load_anim_images('./BaseInvaders/resources/nuclease/Nuclease (<>).png', 1, 14)
 
+tutorial = load_anim_images('./BaseInvaders/resources/tutorial/Tutorial (<>).png', 1, 10)
+
+
 pygame.font.init()
 
 game_over = pygame.image.load('./BaseInvaders/resources/GameOver.png')
