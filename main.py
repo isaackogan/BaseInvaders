@@ -4,7 +4,8 @@ from BaseInvaders.modules.loadingscreen import loading_screen
 from config import caption_image
 import sqlite3
 from time import sleep
-
+from BaseInvaders.modules.resourcetools import parse_time
+import json
 
 pygame.init()
 
@@ -43,6 +44,27 @@ class RunBaseInvaders:
                     # Create Statistics Table for [Bases, XP, Level, Time, Data of Achievement]
                     self.cursor.execute("CREATE TABLE statistics (bases INTEGER, xp INTEGER, level INTEGER, time STRING, date STRING)")
                     self.connection.commit()
+
+                    self.cursor.execute(f"INSERT INTO statistics VALUES (:bases, :xp, :level, :time, :date)",
+                                      {
+                                          'bases': 0,
+                                          'xp': 0,
+                                          'level': 0,
+                                          'time': parse_time(0),
+                                          'date': "None"
+                                      }
+                                      )
+
+                    self.cursor.connection.commit()
+
+                    with open('BaseInvaders/resources/user_data.json') as data:
+                        preferences = json.load(data)
+                        preferences['first_game'] = "True"
+                        preferences['preferences']['character'] = 'standard_boy'
+
+                    with open('BaseInvaders/resources/user_data.json', 'w') as file:
+                        json.dump(preferences, file)
+
                 except sqlite3.OperationalError:
                     # If a statistics database currently exists
                     pass

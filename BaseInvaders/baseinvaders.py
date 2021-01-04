@@ -124,7 +124,7 @@ class BaseInvaders:
             self.character.slide(self.slide_iterator)
             self.slide_iterator -= 1
 
-    def draw_graphics(self, increment_character_state=True):
+    def display_graphics(self, increment_character_state=True):
         self.dis.blit(self.background, (0, 0))
 
         # Scoreboard Items
@@ -139,6 +139,7 @@ class BaseInvaders:
             self.current_animation.get_image()
             self.dis.blit(self.current_animation.current_image, (self.current_animation.x, self.current_animation.y))
 
+        # Draw the Character
         self.character.update_image(increment_character_state)
 
         # pygame.draw.rect(self.dis, (0, 0, 0), (self.character.hit_box[0], self.character.hit_box[1], self.character.hit_box[2], self.character.hit_box[3]))
@@ -241,7 +242,7 @@ class BaseInvaders:
             'adventure_boy': AdventureBoy(),
             'adventure_girl': AdventureGirl()
         }
-        with open('./BaseInvaders/preferences.json') as data:
+        with open('./BaseInvaders/resources/user_data.json') as data:
             preferences = json.load(data)
 
         character = preferences.get('preferences').get('character')
@@ -265,7 +266,7 @@ class BaseInvaders:
                     if event.key in [pygame.K_SPACE, pygame.K_ESCAPE]:
                         death_actions = False
 
-            self.draw_graphics()
+            self.display_graphics()
 
             if (1 < round(death_menu_time, 2) < 2) or (3 < round(death_menu_time, 2) < 4) or 5 < round(death_menu_time, 2) < 6:
                 self.dis.blit(
@@ -308,13 +309,15 @@ def base_invaders():
         game_instance = BaseInvaders()
         game_instance.objective = BaseObjective()
 
-        while run_start_menu():
+        while run_start_menu(clock):
             pass
+
+        game_instance.character = game_instance.set_character()
 
         while not game_instance.game_over[0]:
             game_instance.handle_events()
             game_instance.handle_collisions()
-            game_instance.draw_graphics()
+            game_instance.display_graphics()
             pygame.display.flip()
             clock.tick(game_instance.speed)
 

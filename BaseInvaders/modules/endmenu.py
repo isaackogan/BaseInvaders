@@ -4,6 +4,7 @@ import sqlite3
 from BaseInvaders.config import *
 from config import *
 
+
 class EndGameMenu:
     def __init__(self):
         self.dis = dis
@@ -100,8 +101,6 @@ class EndGameMenu:
         connect.close()
 
         return raw_data
-
-
 
 
 def run_end_menu():

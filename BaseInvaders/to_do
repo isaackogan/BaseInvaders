@@ -1,36 +1,6 @@
-2. Game "Main Menu" Screen with options to pick your character
-
-3. Add Biology notes to the pre-game when a player clicks START to make it more educational (talk about PCR)
-
+Add Biology notes to the pre-game when a player clicks START to make it more educational (talk about PCR)
 go thru all models and assign an offset for bounding box
 change the timer's colour when it gets close to being out of time
-
-12. Dummy event handling for loading screen to stop blue loading wheel from appearing
-
-consider removing the base modulator
-
-Database Information:
-
-The game will have profiles, each profile storing its own stats
-
-MAIN MENU:
-- Character
-- Statistics
-- Start Game
-
-
-
-
-
-Table Layout:
-PROFILE:HIGH SCORE:TOTAL XP ALL-TIME:CHARACTER
-
 Custom "Starting up base generators" message on game start + count in + some sort of animation
-
-High Score (XP)
-
-move "display" to init from run_menu in pause menu
-
-update the loading screen
-
-change character offsets for death when flipped
+add a coloured box behind the "last game" when checking lb
+clean the code

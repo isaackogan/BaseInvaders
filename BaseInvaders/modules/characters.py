@@ -71,7 +71,8 @@ class Character:
         :return: No returns, only updates information within the object
         """
         # Get the current state
-        self.get_state(increment_position)
+        if increment_position:
+            self.get_state()
 
         # If the direction is right
         if self.direction == 'right':
@@ -83,7 +84,7 @@ class Character:
         self.flip_offset = self.offsets[self.state]                                     # Set the X offset due to image transformation
 
     @abstractmethod
-    def get_state(self, increment_state=True):
+    def get_state(self):
         """
         Abstract method to create valid value for get_state.
         In reality, we pull from the child class for this
@@ -409,7 +410,7 @@ class AnimalCat(Character):
         self.states = cat_animal_states                                                 # Character's images in a dictionary w/ states as keys
         self.state_pos = 0                                                              # Default state position is 0 (incremented to 1 on first image call)
         self.hit_box = (None, None, None, None)                                         # Default hitbox location values are none (specified on image call)
-        self.state = 'walk'                                                             # Default state is idle when initialized
+        self.state = 'idle'                                                             # Default state is idle when initialized
         self.offsets = {'idle': 10, 'run': 15, 'walk': 50, 'dead': -35}                 # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y_init = ground - 163                                             # Set the default spawn position @ Y coordinate
         self.position_y = self.position_y_init                                          # Y position override for death state (bad image)
@@ -452,7 +453,7 @@ class AnimalDog(Character):
         self.states = dog_animal_states                                                 # Character's images in a dictionary w/ states as keys
         self.state_pos = 0                                                              # Default state position is 0 (incremented to 1 on first image call)
         self.hit_box = (None, None, None, None)                                         # Default hitbox location values are none (specified on image call)
-        self.state = 'walk'                                                             # Default state is idle when initialized
+        self.state = 'idle'                                                             # Default state is idle when initialized
         self.offsets = {'idle': 10, 'run': 15, 'walk': 50, 'dead': -35}                 # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y_init = ground - 165                                             # Set the default spawn position @ Y coordinate
         self.position_y = self.position_y_init                                          # Y position override for death state
@@ -525,7 +526,6 @@ class AdventureBoy(Character):
         NOTE: X Change/Speed amount overridden
         """
 
-        self.state = 'dead'
         if not (self.state == 'dead' and self.state_pos == len(self.states[self.state]) - 1):   # If it's the final frame of the death animation, cancel
             self.state_pos += 1  # Increment
 
@@ -550,7 +550,7 @@ class AdventureGirl(Character):
         self.states = girl_adventure_states                                             # Character's images in a dictionary w/ states as keys
         self.state_pos = 0                                                              # Default state position is 0 (incremented to 1 on first image call)
         self.hit_box = (None, None, None, None)                                         # Default hitbox location values are none (specified on image call)
-        self.state = 'walk'                                                             # Default state is idle when initialized
+        self.state = 'idle'                                                             # Default state is idle when initialized
         self.offsets = {'idle': 10, 'run': 15, 'walk': 50, 'dead': -15}                 # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y_init = ground - 170                                             # Set the default spawn position @ Y coordinate
         self.position_y = self.position_y_init                                          # Y position override for death state
