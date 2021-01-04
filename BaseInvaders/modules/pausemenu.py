@@ -7,6 +7,7 @@ import webbrowser
 from BaseInvaders.modules.resourcetools import rounded_rectangle
 from main import dis
 
+
 class PauseButton:
     """Responsible for displaying scoreboard items (not calculating values in them)"""
     def __init__(self):
@@ -116,7 +117,6 @@ class PauseMenu:
                         if self.buttons[button] == self.buttons['resume_button']:
                             self.stop_menu = True
                         if self.buttons[button] == self.buttons['endgame_button']:
-                            print('hi')
                             self.end_game = True
                         if self.buttons[button] == self.buttons['credits_button']:
                             webbrowser.open('https://github.com/isaackogan/BaseInvaders', new=2)

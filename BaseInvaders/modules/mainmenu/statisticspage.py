@@ -158,6 +158,5 @@ class StatisticsLeaderboard:
 
             dates.append(entry[4])
 
-        print(len(dataset))
 
         return text_surface, 750 + max([bahnschrift_font_small.size(date)[0] for date in dates]), image_height

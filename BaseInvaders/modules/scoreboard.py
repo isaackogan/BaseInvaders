@@ -82,6 +82,7 @@ class LevelSB(ScoreBoardItem):
     def set_display_string(self, value):
         self.display_string = f"Level {value}"
 
+
 class ExperienceSB(ScoreBoardItem):
     def __init__(self):
         ScoreBoardItem.__init__(self)

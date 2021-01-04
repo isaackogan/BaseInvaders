@@ -172,11 +172,13 @@ class Girl(Character):
         self.state_pos = 0                                                      # Default state position is 0 (incremented to 1 on first image call)
         self.hit_box = (None, None, None, None)                                 # Default hitbox location values are none (specified on image call)
         self.state = 'idle'                                                     # Default state is idle when initialized
-        self.offsets = {'idle': -20, 'run': 0, 'walk': 0, 'dead': 0}            # Default offsets for the character's hitbox on the X coordinate if flipped
+        self.offsets = {'idle': -20, 'run': -20, 'walk': 0, 'dead': 90}            # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y = ground - 149                                          # Set the default spawn position @ Y coordinate
         self.screen_bound_offset_left = 60                                      # Offset on left hand side of screen for character border
         self.screen_bound_offset_right = 47                                     # Offset on right hand side of screen for character border
         self.change_amount = 8                                                  # Movement speed override
+        self.screen_bound_offset_left = 50       # Offset on left hand side of screen for character border
+        self.screen_bound_offset_right = 10      # Offset on right side of screen for character border
 
     def get_state(self, increment=True):
         """Get the current state of the user and update internal values based on it,
@@ -223,8 +225,8 @@ class ZombieBoy(Character):
         self.offsets = {'idle': 50, 'run': 50, 'walk': 50, 'dead': -45}                 # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y_init = ground - 168                                             # Set the default spawn position @ Y coordinate
         self.position_y = self.position_y_init                                          # Y position override for specific state
-        self.screen_bound_offset_left = 60                                              # Offset on left hand side of screen for character border
-        self.screen_bound_offset_right = 47                                             # Offset on left hand side of screen for character border
+        self.screen_bound_offset_left = -15                                             # Offset on left hand side of screen for character border
+        self.screen_bound_offset_right = 15                                             # Offset on left hand side of screen for character border
         self.change_amount = 10
 
     def get_state(self, increment=True):
@@ -265,8 +267,8 @@ class ZombieGirl(Character):
         self.offsets = {'idle': 25, 'run': 25, 'walk': 50, 'dead': -45}                 # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y_init = ground - 186                                             # Set the default spawn position @ Y coordinate
         self.position_y = self.position_y_init                                          # Y position override for death state
-        self.screen_bound_offset_left = 60                                              # Offset on left hand side of screen for character border
-        self.screen_bound_offset_right = 47                                             # Offset on right hand side of screen for character border
+        self.screen_bound_offset_left = 10                                              # Offset on left hand side of screen for character border
+        self.screen_bound_offset_right = 40                                             # Offset on right hand side of screen for character border
         self.change_amount = 8                                                          # Character movement speed override
 
     def get_state(self, increment=True):
@@ -320,8 +322,9 @@ class NinjaBoy(Character):
         self.offsets = {'idle': 0, 'run': 15, 'walk': 15, 'dead': 15}               # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y_init = ground - 156                                         # Set the default spawn position @ Y coordinate
         self.position_y = self.position_y_init                                      # Y position offset for death state
-        self.screen_bound_offset_left = 60                                          # Offset on left hand side of screen for character border
-        self.screen_bound_offset_right = 47                                         # Offset on left hand side of screen for character border
+        self.screen_bound_offset_left = -6                                          # Offset on left hand side of screen for character border
+        self.screen_bound_offset_right = 20                                         # Offset on left hand side of screen for character border
+        self.change_amount = 12
 
     def get_state(self, increment=True):
         """Get the current state of the user and update internal values based on it,
@@ -362,8 +365,8 @@ class NinjaGirl(Character):
         self.offsets = {'idle': 15, 'run': 15, 'walk': 15, 'dead': 15}                  # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y_init = ground - 156                                             # Set the default spawn position @ Y coordinate
         self.position_y = self.position_y_init                                          # Y position override for death state
-        self.screen_bound_offset_left = 60                                              # Offset on left hand side of screen for character border
-        self.screen_bound_offset_right = 47                                             # Offset on right hand side of screen for character border
+        self.screen_bound_offset_left = -6                                              # Offset on left hand side of screen for character border
+        self.screen_bound_offset_right = 7                                             # Offset on right hand side of screen for character border
 
     def get_state(self, increment=True):
         """Get the current state of the user and update internal values based on it,
@@ -414,9 +417,9 @@ class AnimalCat(Character):
         self.offsets = {'idle': 10, 'run': 15, 'walk': 50, 'dead': -35}                 # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y_init = ground - 163                                             # Set the default spawn position @ Y coordinate
         self.position_y = self.position_y_init                                          # Y position override for death state (bad image)
-        self.screen_bound_offset_left = 60                                              # Offset on left hand side of screen for character border
-        self.screen_bound_offset_right = 47                                             # Offset on right hand side of screen for character border
-        self.change_amount = 12                                                         # Character speed override
+        self.screen_bound_offset_left = 30                                              # Offset on left hand side of screen for character border
+        self.screen_bound_offset_right = 50                                             # Offset on right hand side of screen for character border
+        self.change_amount = 10                                                         # Character speed override
 
     def get_state(self, increment=True):
         """Get the current state of the user and update internal values based on it,
@@ -454,12 +457,12 @@ class AnimalDog(Character):
         self.state_pos = 0                                                              # Default state position is 0 (incremented to 1 on first image call)
         self.hit_box = (None, None, None, None)                                         # Default hitbox location values are none (specified on image call)
         self.state = 'idle'                                                             # Default state is idle when initialized
-        self.offsets = {'idle': 10, 'run': 15, 'walk': 50, 'dead': -35}                 # Default offsets for the character's hitbox on the X coordinate if flipped
+        self.offsets = {'idle': 10, 'run': 15, 'walk': 50, 'dead': -15}                 # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y_init = ground - 165                                             # Set the default spawn position @ Y coordinate
         self.position_y = self.position_y_init                                          # Y position override for death state
-        self.screen_bound_offset_left = 60                                              # Offset on left hand side of screen for character border
-        self.screen_bound_offset_right = 47                                             # Offset on right hand side of screen for character border
-        self.change_amount = 8                                                          # Character speed override
+        self.screen_bound_offset_left = 30                                              # Offset on left hand side of screen for character border
+        self.screen_bound_offset_right = 50                                             # Offset on right hand side of screen for character border
+        self.change_amount = 10                                                          # Character speed override
 
     def get_state(self, increment=True):
         """Get the current state of the user and update internal values based on it,
@@ -510,8 +513,8 @@ class AdventureBoy(Character):
         self.offsets = {'idle': 15, 'run': 15, 'walk': 15, 'dead': 15}                  # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y_init = ground - 160                                             # Set the default spawn position @ Y coordinate
         self.position_y = self.position_y_init                                          # Y position override for death state
-        self.screen_bound_offset_left = 60                                              # Offset on left hand side of screen for character border
-        self.screen_bound_offset_right = 47                                             # Offset on right hand side of screen for character border
+        self.screen_bound_offset_left = -12                                              # Offset on left hand side of screen for character border
+        self.screen_bound_offset_right = 35                                             # Offset on right hand side of screen for character border
         self.change_amount = 12                                                         # Character speed override
 
     def get_state(self, increment=True):
@@ -554,8 +557,8 @@ class AdventureGirl(Character):
         self.offsets = {'idle': 10, 'run': 15, 'walk': 50, 'dead': -15}                 # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y_init = ground - 170                                             # Set the default spawn position @ Y coordinate
         self.position_y = self.position_y_init                                          # Y position override for death state
-        self.screen_bound_offset_left = 60                                              # Offset on left hand side of screen for character border
-        self.screen_bound_offset_right = 47                                             # Offset on right hand side of screen for character border
+        self.screen_bound_offset_left = 20                                             # Offset on left hand side of screen for character border
+        self.screen_bound_offset_right = 74                                            # Offset on right hand side of screen for character border
         self.change_amount = 12                                                         # Character speed override
 
     def get_state(self, increment=True):

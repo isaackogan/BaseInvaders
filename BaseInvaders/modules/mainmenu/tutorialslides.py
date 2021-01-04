@@ -15,10 +15,10 @@ class Tutorial:
             if event.type == pygame.QUIT:
                 pygame.quit(), quit()
             if event.type == pygame.KEYDOWN:
-                if event.key in [pygame.K_SPACE, ord("W"), ord("D"), pygame.K_UP, pygame.K_RIGHT]:
+                if event.key in [pygame.K_SPACE, ord("w"), ord("d"), pygame.K_UP, pygame.K_RIGHT]:
                     self.slide += 1
-                if event.key in [ord("A"), ord("S"), pygame.K_DOWN, pygame.K_LEFT]:
-                    event.slide -= 1
+                if event.key in [ord("a"), ord("s"), pygame.K_DOWN, pygame.K_LEFT]:
+                    self.slide -= 1
                 if event.key == pygame.K_ESCAPE:
                     self.stop_menu = True
             if event.type == pygame.MOUSEBUTTONDOWN:

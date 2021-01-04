@@ -1,6 +1,2 @@
-Add Biology notes to the pre-game when a player clicks START to make it more educational (talk about PCR)
-go thru all models and assign an offset for bounding box
-change the timer's colour when it gets close to being out of time
 Custom "Starting up base generators" message on game start + count in + some sort of animation
-add a coloured box behind the "last game" when checking lb
 clean the code

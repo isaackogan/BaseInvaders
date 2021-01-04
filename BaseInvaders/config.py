@@ -29,6 +29,7 @@ end_game_menu = pygame.image.load('./BaseInvaders/resources/EndGameMenu.png')
 
 statistics_menu = pygame.image.load('./BaseInvaders/resources/StatisticsMenu.png')
 
+timer_red = pygame.image.load('./BaseInvaders/resources/TimerRedBackground.png')
 
 xp_increase_amount = 10
 

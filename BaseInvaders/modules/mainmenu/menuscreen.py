@@ -38,7 +38,6 @@ class MenuScreen:
                 pygame.quit(), exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                self.change_character(1)
                 for idx, button in enumerate(self.buttons):
                     if self.button_collision(button):
 
@@ -62,6 +61,12 @@ class MenuScreen:
                             self.change_character('fwd')
                         if idx == 6:
                             self.change_character('bwd')
+
+            if event.type == pygame.KEYDOWN:
+                if event.key in [ord("w"), ord("d"), pygame.K_RIGHT, pygame.K_UP]:
+                    self.change_character('fwd')
+                if event.key in [ord("a"), ord("s"), pygame.K_LEFT, pygame.K_DOWN]:
+                    self.change_character('bwd')
 
     def button_collision(self, button):
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -168,7 +173,6 @@ class MenuScreen:
         with open('./BaseInvaders/resources/user_data.json', 'w') as file:
             json.dump(preferences, file)
 
-            print(current_pref_id)
 
         self.character_choice = self.get_character()
 

@@ -11,6 +11,7 @@ from BaseInvaders.modules.bases import *
 from BaseInvaders.modules.objectives import *
 from BaseInvaders.modules.neucleases import *
 from BaseInvaders.modules.mainmenu.tutorialslides import Tutorial
+from config import franklin_gothic_large_3
 
 class BaseInvaders:
     def __init__(self):
@@ -51,6 +52,7 @@ class BaseInvaders:
         self.slide_iterator = 0
 
         self.collisions = 0
+        self.background_timer_red = timer_red
 
     def handle_events(self):
 
@@ -124,8 +126,24 @@ class BaseInvaders:
             self.character.slide(self.slide_iterator)
             self.slide_iterator -= 1
 
+    def get_background(self):
+
+        time_left = round(self.objective.time_per_base - self.base_timer, 2)
+
+        if any(
+                [
+                    8 > time_left > 7,
+                    6 > time_left > 5,
+                    4 > time_left > 3,
+                    2 > time_left > 1,
+                    time_left < 0.2
+                ]
+        ): return self.background_timer_red
+        else: return self.background
+
     def display_graphics(self, increment_character_state=True):
-        self.dis.blit(self.background, (0, 0))
+
+        self.dis.blit(self.get_background(), (0, 0))
 
         # Scoreboard Items
         self.dis.blit(self.score_scoreboard.get_image(), (self.score_scoreboard.rect_x, self.score_scoreboard.rect_y))  # Score
@@ -206,7 +224,6 @@ class BaseInvaders:
 
         # Nuclease Collision with Player
         if nuclease_rect.colliderect(character):
-            print("COLLISION")
 
             self.collisions += 1
             if self.collisions >= 10:
@@ -297,6 +314,51 @@ class BaseInvaders:
 
         connect_db.commit(), connect_db.close()
 
+    def start_animation(self):
+        self.display_graphics()
+        run_animation = True
+        self.character.state = 'walk'
+
+        while run_animation:
+
+            if round(self.general_timer < 5):
+                text = "Heating to 72°C..."
+
+            if round(self.general_timer) > 5:
+
+                text = " "
+                self.display_graphics()
+                self.dis.blit(franklin_gothic_large_3.render(text, True, COLOR_BGRD_BLUE_DARK), (0, 0))
+                pygame.display.flip()
+                self.pause_menu.count_in(self.dis.copy())
+                run_animation = False
+
+            if not self.character.position_x > (DISPLAY_X / 2 - self.character.hit_box[3] / 2) + 30:
+                self.character.position_x += 5
+            else:
+                self.character.state = 'idle'
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit(), quit()
+
+                if event.type == pygame.USEREVENT:
+                    self.general_timer += 0.01
+
+            self.display_graphics()
+
+            text_size = franklin_gothic_large_3.size(text)
+            self.dis.blit(
+                franklin_gothic_large_3.render(text, True, COLOR_BGRD_BLUE_DARK),
+                (
+                    DISPLAY_X / 2 - text_size[0] / 2, DISPLAY_Y / 3 - text_size[1] / 2)
+            )
+
+            pygame.display.flip()
+            self.clock.tick(self.speed)
+
+        self.general_timer = 0
+
 
 def base_invaders():
     pygame.display.set_caption("Base Invaders")  # Setting the Caption
@@ -308,6 +370,7 @@ def base_invaders():
         # Initial Values
         game_instance = BaseInvaders()
         game_instance.objective = BaseObjective()
+        game_instance.clock = clock
 
         while run_start_menu(clock):
             pass
@@ -325,6 +388,8 @@ def base_invaders():
         with open('./BaseInvaders/resources/user_data.json', 'w') as data:
             preferences['first_game'] = "False"
             json.dump(preferences, data)
+
+        game_instance.start_animation()
 
         while not game_instance.game_over[0]:
             game_instance.handle_events()
