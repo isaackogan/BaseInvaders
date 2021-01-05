@@ -12,6 +12,8 @@ from BaseInvaders.modules.objectives import *
 from BaseInvaders.modules.neucleases import *
 from BaseInvaders.modules.mainmenu.tutorialslides import Tutorial
 from config import franklin_gothic_large_3
+from BaseInvaders.modules.sounds import *
+
 
 class BaseInvaders:
     def __init__(self):
@@ -43,7 +45,7 @@ class BaseInvaders:
 
         self.base_spawnrate = 2
 
-        self.nuclease_speed = [2, 3]
+        self.nuclease_speed = [3, 4]
         self.nuclease_size_modifier = 1
         self.nuclease = Nuclease(self.nuclease_speed)
 
@@ -53,6 +55,9 @@ class BaseInvaders:
 
         self.collisions = 0
         self.background_timer_red = timer_red
+
+        self.klaxon_channel = pygame.mixer.Channel(1)
+        self.klaxon_sound = sounds['timer_alarm_sound']
 
     def handle_events(self):
 
@@ -71,6 +76,10 @@ class BaseInvaders:
                     item.handle_movement()
                     if item.remove_base:
                         self.bases.remove(item)
+
+                if 0.1 < self.general_timer < 0.2:
+                    set_music('game_music')
+                    pygame.mixer.music.play(-1)
 
                 if self.general_timer % self.base_spawnrate == 0:
                     spawn = Base()
@@ -100,6 +109,7 @@ class BaseInvaders:
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.pause_button.mouse_on_button():
+                    pygame.mixer.Sound.play(sounds['button_click_sound'])
                     if self.pause_menu.run_menu() is True:
                         self.game_over = True, False
 
@@ -138,7 +148,12 @@ class BaseInvaders:
                     2 > time_left > 1,
                     time_left < 0.2
                 ]
-        ): return self.background_timer_red
+        ):
+
+            if not self.klaxon_channel.get_busy():
+                self.klaxon_channel.play(self.klaxon_sound)
+
+            return self.background_timer_red
         else: return self.background
 
     def display_graphics(self, increment_character_state=True):
@@ -209,6 +224,7 @@ class BaseInvaders:
                 got_base = self.objective.handle_collisions(item.type)
 
                 if got_base:
+                    pygame.mixer.Sound.play(sounds['base_pickup_success_sound'])
                     self.experience += xp_increase_amount
                     self.levelsystem.bases += 1
 
@@ -216,9 +232,12 @@ class BaseInvaders:
 
                     # Increase difficulty @ certain level intervals
                     if result:
+                        pygame.mixer.Sound.play(sounds['level_up_sound'])
                         self.increase_difficulty()
 
                     self.base_timer = 0  # Reset the base timer if they caught the right one
+                else:
+                    pygame.mixer.Sound.play(sounds['base_pickup_fail_sound'])
 
                 item.remove_base = True
 
@@ -227,6 +246,7 @@ class BaseInvaders:
 
             self.collisions += 1
             if self.collisions >= 10:
+                pygame.mixer.Sound.play(sounds['player_crash_sound'])
                 self.game_over = True, True
 
     def increase_difficulty(self):
@@ -273,6 +293,8 @@ class BaseInvaders:
         death_actions = True
         death_menu_time = 0
 
+        pygame.mixer.Sound.play(sounds['game_over'])
+
         while death_actions:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -318,22 +340,31 @@ class BaseInvaders:
         self.display_graphics()
         run_animation = True
         self.character.state = 'walk'
+        scale = 0.3
+        self.general_timer = 0
 
         while run_animation:
+            scale += 0.0038
 
-            if round(self.general_timer < 5):
-                text = "Heating to 72°C..."
+            if round(self.general_timer < 6):
+                num = round(50 + ((self.general_timer / 6) * 22))
 
-            if round(self.general_timer) > 5:
+                text = f"Heating... {num}°C"
+
+            if round(self.general_timer, 2) == 0.0:
+                pygame.mixer.Sound.play(sounds['base_invaders_loading_sound'])
+
+            if round(self.general_timer) > 6:
 
                 text = " "
                 self.display_graphics()
                 self.dis.blit(franklin_gothic_large_3.render(text, True, COLOR_BGRD_BLUE_DARK), (0, 0))
                 pygame.display.flip()
                 self.pause_menu.count_in(self.dis.copy())
+
                 run_animation = False
 
-            if not self.character.position_x > (DISPLAY_X / 2 - self.character.hit_box[3] / 2) + 30:
+            if not self.character.position_x > ((DISPLAY_X / 2) - (self.character.hit_box[3] / 2)):
                 self.character.position_x += 5
             else:
                 self.character.state = 'idle'
@@ -348,11 +379,14 @@ class BaseInvaders:
             self.display_graphics()
 
             text_size = franklin_gothic_large_3.size(text)
-            self.dis.blit(
-                franklin_gothic_large_3.render(text, True, COLOR_BGRD_BLUE_DARK),
-                (
-                    DISPLAY_X / 2 - text_size[0] / 2, DISPLAY_Y / 3 - text_size[1] / 2)
-            )
+            text_display = pygame.Surface(text_size, pygame.SRCALPHA, 32).convert_alpha()
+
+            text_display.blit(franklin_gothic_large_3.render(text, True, COLOR_BGRD_BLUE_DARK), (0, 0))
+
+            text_actual_size = (round(text_size[0] * scale), (round(text_size[1] * scale)))
+            text_display = pygame.transform.smoothscale(text_display, text_actual_size)
+
+            self.dis.blit(text_display, (DISPLAY_X / 2 - text_actual_size[0] / 2, DISPLAY_Y / 3 - text_actual_size[1] / 2))
 
             pygame.display.flip()
             self.clock.tick(self.speed)
@@ -399,7 +433,10 @@ def base_invaders():
             clock.tick(game_instance.speed)
 
         # Stuff to do if they died regularly (didn't choose to quit)
-        if game_instance.game_over[1]:  game_instance.death_actions(clock)
+        if game_instance.game_over[1]:
+            pygame.mixer.Sound.set_volume(game_instance.klaxon_sound, 0)
+            pygame.mixer.music.stop()
+            game_instance.death_actions(clock)
         game_instance.db_gamestats_insert()
 
         while run_end_menu():

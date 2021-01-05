@@ -6,7 +6,7 @@ from math import ceil
 class LevelsSystem:
     def __init__(self):
         self.amount = 1
-        self.bases = 0
+        self.bases = 14
         self.level = 1
 
     @staticmethod

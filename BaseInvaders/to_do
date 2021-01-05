@@ -1,2 +1,4 @@
-Custom "Starting up base generators" message on game start + count in + some sort of animation
+- If you catch the wrong base, you lose 1 bp, flash on screen, error sound played, self.regenerate_base
+
 clean the code
+comment the code

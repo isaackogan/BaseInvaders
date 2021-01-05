@@ -48,7 +48,7 @@ class RunBaseInvaders:
                     self.cursor.execute(f"INSERT INTO statistics VALUES (:bases, :xp, :level, :time, :date)",
                                       {
                                           'bases': 0,
-                                          'xp': 0,
+                                          'xp': -20,
                                           'level': 0,
                                           'time': parse_time(0),
                                           'date': "None"

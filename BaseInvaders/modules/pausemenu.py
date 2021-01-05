@@ -6,6 +6,7 @@ from config import *
 import webbrowser
 from BaseInvaders.modules.resourcetools import rounded_rectangle
 from main import dis
+from BaseInvaders.modules.sounds import *
 
 
 class PauseButton:
@@ -83,6 +84,7 @@ class PauseButton:
         #self.rect_data.blit(self.text_data, (self.text_x, self.text_y))
         return self.completed_surface_data
 
+
 class PauseMenu:
     def __init__(self):
         self.dis = dis
@@ -114,6 +116,7 @@ class PauseMenu:
                 for button in self.buttons:
                     if (self.buttons[button].button_x < mouse_x < (self.buttons[button].button_x + self.buttons[button].button_width)) and \
                             (self.buttons[button].button_y < mouse_y < (self.buttons[button].button_y + self.buttons[button].button_height)):
+                        pygame.mixer.Sound.play(sounds['button_click_sound'])
                         if self.buttons[button] == self.buttons['resume_button']:
                             self.stop_menu = True
                         if self.buttons[button] == self.buttons['endgame_button']:
@@ -147,6 +150,7 @@ class PauseMenu:
         return self.background
 
     def run_menu(self):
+        pygame.mixer.music.pause()
         display_copy = self.dis.copy()
         self.get_background(self.dis, 2)
 
@@ -169,6 +173,7 @@ class PauseMenu:
 
                 # Reset the object & break
                 self.__init__()
+                pygame.mixer.music.unpause()
                 break
 
     def count_in(self, copy):

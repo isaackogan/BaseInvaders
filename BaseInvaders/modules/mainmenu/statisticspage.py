@@ -2,7 +2,7 @@ from BaseInvaders.config import *
 import sqlite3
 from main import dis, DISPLAY_X, DISPLAY_Y
 from config import bahnschrift_font_small, COLOR_WHITE, COLOR_WHITE_DARK, franklin_gothic_medium, COLOR_WHITE_SEMI_DARK_ALT
-
+from BaseInvaders.modules.sounds import *
 
 class MenuStatisticsPage:
     def __init__(self):
@@ -17,7 +17,7 @@ class MenuStatisticsPage:
         self.lb_image_pos = -5
         self.stat_image_height = None
 
-        self.scroll_speed = 10
+        self.scroll_speed = 20
         self.stop_menu = False
 
         self.button_x = 300
@@ -38,6 +38,7 @@ class MenuStatisticsPage:
                     if (self.lb_image_pos - self.scroll_speed) > (-1 * self.stat_image_height) + self.lb_image_height: self.lb_image_pos -= self.scroll_speed
 
                 if self.mouse_on_button():
+                    pygame.mixer.Sound.play(sounds['button_click_sound'])
                     self.stop_menu = True
 
             if event.type == pygame.KEYDOWN:
@@ -138,25 +139,32 @@ class StatisticsLeaderboard:
 
         # (bases, xp, level, time, date)
         for idx, entry in enumerate(dataset):
-            # Position
-            text_surface.blit(bahnschrift_font_small.render(f"#{idx + 1}", True, COLOR_WHITE), (0, idx * lb_spacer))
+            print(entry)
+            if str(entry[4]) == "None":
+                pass
+            else:
 
-            # XP
-            text_surface.blit(bahnschrift_font_small.render(str(entry[1]), True, COLOR_WHITE), (150, idx * lb_spacer))
+                # Position
+                text_surface.blit(bahnschrift_font_small.render(f"#{idx + 1}", True, COLOR_WHITE), (0, idx * lb_spacer))
 
-            # Level
-            text_surface.blit(bahnschrift_font_small.render(str(entry[2]), True, COLOR_WHITE), (300, idx * lb_spacer))
+                # XP
+                text_surface.blit(bahnschrift_font_small.render(str(entry[1]), True, COLOR_WHITE), (150, idx * lb_spacer))
 
-            # Bases
-            text_surface.blit(bahnschrift_font_small.render(str(entry[0]), True, COLOR_WHITE), (450, idx * lb_spacer))
+                # Level
+                text_surface.blit(bahnschrift_font_small.render(str(entry[2]), True, COLOR_WHITE), (300, idx * lb_spacer))
 
-            # Time
-            text_surface.blit(bahnschrift_font_small.render(str(entry[3]), True, COLOR_WHITE), (600, idx * lb_spacer))
+                # Bases
+                text_surface.blit(bahnschrift_font_small.render(str(entry[0]), True, COLOR_WHITE), (450, idx * lb_spacer))
 
-            # Date
-            text_surface.blit(bahnschrift_font_small.render(str(entry[4]), True, COLOR_WHITE), (750, idx * lb_spacer))
+                # Time
+                text_surface.blit(bahnschrift_font_small.render(str(entry[3]), True, COLOR_WHITE), (600, idx * lb_spacer))
 
-            dates.append(entry[4])
+                # Date
+                text_surface.blit(bahnschrift_font_small.render(str(entry[4]), True, COLOR_WHITE), (750, idx * lb_spacer))
 
+                dates.append(entry[4])
 
-        return text_surface, 750 + max([bahnschrift_font_small.size(date)[0] for date in dates]), image_height
+        try:
+            return text_surface, 750 + max([bahnschrift_font_small.size(date)[0] for date in dates]), image_height
+        except ValueError:
+            return text_surface, 820, image_height

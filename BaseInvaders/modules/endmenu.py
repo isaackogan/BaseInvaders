@@ -3,7 +3,7 @@ from main import dis
 import sqlite3
 from BaseInvaders.config import *
 from config import *
-
+from BaseInvaders.modules.sounds import *
 
 class EndGameMenu:
     def __init__(self):
@@ -41,6 +41,7 @@ class EndGameMenu:
                 pygame.exit(), exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.mouse_on_button():
+                    pygame.mixer.Sound.play(sounds['button_click_sound'])
                     self.run_menu = False
             if event.type == pygame.KEYDOWN:
                 if event.key in [pygame.K_SPACE, pygame.K_ESCAPE]:

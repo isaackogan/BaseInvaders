@@ -6,7 +6,7 @@ import sqlite3
 import json
 from BaseInvaders.modules.characters import *
 from BaseInvaders.modules.mainmenu.tutorialslides import Tutorial
-
+from BaseInvaders.modules.sounds import *
 
 menu_screen_image = pygame.image.load('./BaseInvaders/resources/MenuScreen.png')
 from BaseInvaders.modules.mainmenu.statisticspage import MenuStatisticsPage
@@ -44,13 +44,16 @@ class MenuScreen:
                         if self.button_cooldown > 0:
                             break
 
-                        self.button_cooldown = 30
+                        pygame.mixer.Sound.play(sounds['button_click_sound'])
 
+                        self.button_cooldown = 30
                         # Play Button
                         if idx == 0:
                             self.run_menu = False
                         if idx == 1:
                             Tutorial().run_menu()
+                            set_music('menu_game_music')
+                            pygame.mixer.music.play()
                         if idx == 2:
                             self.statistics_page.run_menu()
                         if idx == 3:
@@ -64,8 +67,10 @@ class MenuScreen:
 
             if event.type == pygame.KEYDOWN:
                 if event.key in [ord("w"), ord("d"), pygame.K_RIGHT, pygame.K_UP]:
+                    pygame.mixer.Sound.play(sounds['button_click_sound'])
                     self.change_character('fwd')
                 if event.key in [ord("a"), ord("s"), pygame.K_LEFT, pygame.K_DOWN]:
+                    pygame.mixer.Sound.play(sounds['button_click_sound'])
                     self.change_character('bwd')
 
     def button_collision(self, button):
@@ -267,6 +272,8 @@ class PreviousCharacterButton(MenuButton):
 
 def run_start_menu(clock):
     smenu = MenuScreen()
+    set_music('menu_game_music')
+    pygame.mixer.music.play(-1)
 
     while smenu.run_menu:
         smenu.handle_events()
@@ -274,4 +281,5 @@ def run_start_menu(clock):
         pygame.display.flip()
         clock.tick(25)
 
+    pygame.mixer.music.stop()
     return smenu.run_menu

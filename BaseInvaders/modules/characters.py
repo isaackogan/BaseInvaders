@@ -264,7 +264,7 @@ class ZombieGirl(Character):
         self.state_pos = 0                                                              # Default state position is 0 (incremented to 1 on first image call)
         self.hit_box = (None, None, None, None)                                         # Default hitbox location values are none (specified on image call)
         self.state = 'idle'                                                             # Default state is idle when initialized
-        self.offsets = {'idle': 25, 'run': 25, 'walk': 50, 'dead': -45}                 # Default offsets for the character's hitbox on the X coordinate if flipped
+        self.offsets = {'idle': 25, 'run': 25, 'walk': 50, 'dead': 85}                 # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y_init = ground - 186                                             # Set the default spawn position @ Y coordinate
         self.position_y = self.position_y_init                                          # Y position override for death state
         self.screen_bound_offset_left = 10                                              # Offset on left hand side of screen for character border

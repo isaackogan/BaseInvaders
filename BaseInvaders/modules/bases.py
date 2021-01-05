@@ -10,8 +10,8 @@ class Base:
         self.bases = bases                                          # Valid display locations for bases
 
         # Settings
-        self.change_x = 0.6                                         # Change the x position by
-        self.change_y = 0.4                                         # Change the y position by
+        self.change_x = 1.2                                         # Change the x position by
+        self.change_y = 1                                         # Change the y position by
         self.screen_width = DISPLAY_X                               # Width of the screen (for direction changes)
 
         # Initial Values (Hardcoded)
