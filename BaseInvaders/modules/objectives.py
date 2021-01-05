@@ -6,7 +6,7 @@ from math import ceil
 class LevelsSystem:
     def __init__(self):
         self.amount = 1
-        self.bases = 14
+        self.bases = 0
         self.level = 1
 
     @staticmethod
@@ -37,7 +37,7 @@ class BaseObjective:
         self.position_y = ground + 103                  # Set the default Y position of the object
 
         # Timer
-        self.time_per_base = 25
+        self.time_per_base = 5
         self.time_left = self.time_per_base
 
     def new_base(self):

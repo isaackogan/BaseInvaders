@@ -69,7 +69,6 @@ class ScoreSB(ScoreBoardItem):
     def set_display_string(self, value):
         self.display_string = f"{value[0]}/{value[1]} bp"
 
-
 class LevelSB(ScoreBoardItem):
     def __init__(self):
         ScoreBoardItem.__init__(self)

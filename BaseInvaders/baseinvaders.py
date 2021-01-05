@@ -43,7 +43,7 @@ class BaseInvaders:
 
         self.experience = 0
 
-        self.base_spawnrate = 2
+        self.base_spawnrate = 1.5
 
         self.nuclease_speed = [3, 4]
         self.nuclease_size_modifier = 1
@@ -237,6 +237,9 @@ class BaseInvaders:
 
                     self.base_timer = 0  # Reset the base timer if they caught the right one
                 else:
+                    if self.experience - 5 >= 0:
+                        self.experience -= 5
+
                     pygame.mixer.Sound.play(sounds['base_pickup_fail_sound'])
 
                 item.remove_base = True
