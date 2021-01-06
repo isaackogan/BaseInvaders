@@ -1,4 +1,6 @@
-from BaseInvaders.modules.resourcetools import load_anim_images
+from BaseInvaders.modules.resource_tools import load_anim_images
+
+# Create a dictionary of all states for the microscope, bunsen burner, sprinkler, and smoke animations to be pulled from
 
 microscope_images = load_anim_images('./BaseInvaders/resources/backgroundanims/microscope/Microscope (<>).png', 1, 16, (840 / 3.71, 845 / 3.71))
 bunsen_burner_images = load_anim_images('./BaseInvaders/resources/backgroundanims/bunsenburner/Bunsen Burner (<>).png', 1, 11, (354 / 3, 480 / 3))

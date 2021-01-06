@@ -1,7 +1,8 @@
 from BaseInvaders.config import *
 from BaseInvaders.resources.characters.load_characters import *
 from abc import ABCMeta, abstractmethod
-from config import DISPLAY_X
+from BaseInvaders.config import DISPLAY_X
+import json
 
 
 class Character:
@@ -19,6 +20,8 @@ class Character:
         self.screen_bound_offset_left = 0       # Offset on left hand side of screen for character border
         self.screen_bound_offset_right = 0      # Offset on right side of screen for character border
         self.pressed_keys = None                # All keys the player is currently pressing
+        self.slide_iterator = 0
+        self.moving = False
 
         # Settings (Hardcoded)
         __metaclass__ = ABCMeta                 # Let the meta know there's an abstract method in this class
@@ -28,6 +31,39 @@ class Character:
         # Settings (Variable)
         self.screen_width = DISPLAY_X           # Get the screen width from config
 
+    @staticmethod
+    def set_character():
+        """
+        Static class method to set the character choice
+
+        Actions:
+            1. Initialize a copy of each character (very low-mem, so it doesn't matter)
+            2. Load the json file and see what character is saved there
+            3. Pick the character with the matching key from the json file in the choices
+            4. Return the library key value at the json file selected character & discard other objects from memory
+
+        :return: valid Character object (my own class!!)
+        """
+        character_choice = {
+            'standard_boy': Boy(),
+            'standard_girl': Girl(),
+            'zombie_boy': ZombieBoy(),
+            'zombie_girl': ZombieGirl(),
+            'ninja_boy': NinjaBoy(),
+            'ninja_girl': NinjaGirl(),
+            'cat_animal': AnimalCat(),
+            'dog_animal': AnimalDog(),
+            'adventure_boy': AdventureBoy(),
+            'adventure_girl': AdventureGirl()
+        }
+
+        with open('./BaseInvaders/resources/user_data.json') as data:
+            preferences = json.load(data)
+
+        character = preferences.get('preferences').get('character')
+
+        return character_choice[character]
+
     def handle_movement(self):
         """
         Move the character based on the pressed keys,
@@ -36,8 +72,20 @@ class Character:
         Locks movement to X co-ords 0, screen width
 
         This method returns nothing and simply updates
-        the attributes for the object itself.
+        the attributes for the object itself + returns a bool value
+
+        Actions:
+            1. Get the pressed keys
+            2. Check the keys
+            3. Based on the keys' corresponding direction change the position & lock to screen + change state to running
+            4. Return bool if successfully moved
+            5. Otherwise return nothing and set state to idle
+
+
+        :return: (bool) -> True = moving, None = not moving
+
         """
+
         # Get pressed keys
         self.pressed_keys = pygame.key.get_pressed()
 
@@ -68,6 +116,10 @@ class Character:
     def update_image(self, increment_position=True):
         """
         Get the valid image for the user based on their state
+
+        Actions:
+            1. Get the current state
+            2. Check direction, flip if left
         :return: No returns, only updates information within the object
         """
         # Get the current state
@@ -93,6 +145,18 @@ class Character:
         pass
 
     def slide(self, slide_iterator):
+        """
+        Slide the user based on the value of the slide iterator (gets progressively slower)
+
+        Actions:
+            1. Check direction
+            2. Check if movement goes off the screen, cancel if it does
+            3. Move the user by 0.2 pixels * the iterator amount (2, 1.8, etc.)
+
+        :param slide_iterator: value to multiply the hardcoded pixel amount by
+        :return: No returns
+        """
+
         if self.direction == 'right':
             if not self.position_x + self.screen_bound_offset_right + self.change_amount < self.screen_width - 120:     # If the new position goes off right side of screen
                 return
@@ -132,7 +196,7 @@ class Boy(Character):
 
         # Settings (Hardcoded)
         self.state = 'idle'                                                     # Default state is idle when initialized
-        self.offsets = {'idle': 122, 'run': 120, 'walk': 121, 'dead': 100}       # Default offsets for the character's hitbox on the X coordinate if flipped
+        self.offsets = {'idle': 122, 'run': 120, 'walk': 121, 'dead': 100}      # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y = ground - 177                                          # Set the default spawn position @ Y coordinate
 
     def get_state(self, increment=True):
@@ -172,7 +236,7 @@ class Girl(Character):
         self.state_pos = 0                                                      # Default state position is 0 (incremented to 1 on first image call)
         self.hit_box = (None, None, None, None)                                 # Default hitbox location values are none (specified on image call)
         self.state = 'idle'                                                     # Default state is idle when initialized
-        self.offsets = {'idle': -20, 'run': -20, 'walk': 0, 'dead': 90}            # Default offsets for the character's hitbox on the X coordinate if flipped
+        self.offsets = {'idle': -20, 'run': -20, 'walk': 0, 'dead': 90}         # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y = ground - 149                                          # Set the default spawn position @ Y coordinate
         self.screen_bound_offset_left = 60                                      # Offset on left hand side of screen for character border
         self.screen_bound_offset_right = 47                                     # Offset on right hand side of screen for character border
@@ -264,7 +328,7 @@ class ZombieGirl(Character):
         self.state_pos = 0                                                              # Default state position is 0 (incremented to 1 on first image call)
         self.hit_box = (None, None, None, None)                                         # Default hitbox location values are none (specified on image call)
         self.state = 'idle'                                                             # Default state is idle when initialized
-        self.offsets = {'idle': 25, 'run': 25, 'walk': 50, 'dead': 85}                 # Default offsets for the character's hitbox on the X coordinate if flipped
+        self.offsets = {'idle': 25, 'run': 25, 'walk': 50, 'dead': 55}                  # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y_init = ground - 186                                             # Set the default spawn position @ Y coordinate
         self.position_y = self.position_y_init                                          # Y position override for death state
         self.screen_bound_offset_left = 10                                              # Offset on left hand side of screen for character border
@@ -366,7 +430,7 @@ class NinjaGirl(Character):
         self.position_y_init = ground - 156                                             # Set the default spawn position @ Y coordinate
         self.position_y = self.position_y_init                                          # Y position override for death state
         self.screen_bound_offset_left = -6                                              # Offset on left hand side of screen for character border
-        self.screen_bound_offset_right = 7                                             # Offset on right hand side of screen for character border
+        self.screen_bound_offset_right = 7                                              # Offset on right hand side of screen for character border
 
     def get_state(self, increment=True):
         """Get the current state of the user and update internal values based on it,
@@ -462,7 +526,7 @@ class AnimalDog(Character):
         self.position_y = self.position_y_init                                          # Y position override for death state
         self.screen_bound_offset_left = 30                                              # Offset on left hand side of screen for character border
         self.screen_bound_offset_right = 50                                             # Offset on right hand side of screen for character border
-        self.change_amount = 10                                                          # Character speed override
+        self.change_amount = 10                                                         # Character speed override
 
     def get_state(self, increment=True):
         """Get the current state of the user and update internal values based on it,
@@ -513,7 +577,7 @@ class AdventureBoy(Character):
         self.offsets = {'idle': 15, 'run': 15, 'walk': 15, 'dead': 15}                  # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y_init = ground - 160                                             # Set the default spawn position @ Y coordinate
         self.position_y = self.position_y_init                                          # Y position override for death state
-        self.screen_bound_offset_left = -12                                              # Offset on left hand side of screen for character border
+        self.screen_bound_offset_left = -12                                             # Offset on left hand side of screen for character border
         self.screen_bound_offset_right = 35                                             # Offset on right hand side of screen for character border
         self.change_amount = 12                                                         # Character speed override
 
@@ -557,8 +621,8 @@ class AdventureGirl(Character):
         self.offsets = {'idle': 10, 'run': 15, 'walk': 50, 'dead': -15}                 # Default offsets for the character's hitbox on the X coordinate if flipped
         self.position_y_init = ground - 170                                             # Set the default spawn position @ Y coordinate
         self.position_y = self.position_y_init                                          # Y position override for death state
-        self.screen_bound_offset_left = 20                                             # Offset on left hand side of screen for character border
-        self.screen_bound_offset_right = 74                                            # Offset on right hand side of screen for character border
+        self.screen_bound_offset_left = 20                                              # Offset on left hand side of screen for character border
+        self.screen_bound_offset_right = 74                                             # Offset on right hand side of screen for character border
         self.change_amount = 12                                                         # Character speed override
 
     def get_state(self, increment=True):

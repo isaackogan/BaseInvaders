@@ -1,23 +1,23 @@
-from config import *
-import pygame
-from main import dis
-import webbrowser
-import sqlite3
-import json
 from BaseInvaders.modules.characters import *
 from BaseInvaders.modules.mainmenu.tutorialslides import Tutorial
-from BaseInvaders.modules.sounds import *
-
-menu_screen_image = pygame.image.load('./BaseInvaders/resources/MenuScreen.png')
+from BaseInvaders.resources.sounds.load_sounds import *
 from BaseInvaders.modules.mainmenu.statisticspage import MenuStatisticsPage
+from BaseInvaders.resources.characters.load_characters import character_choices
+from BaseInvaders.config import menu_screen_image, character_positions
+from main import dis
+import webbrowser
 
 
-class MenuScreen:
+class MainMenu:
+    """Menu Screen Class"""
     def __init__(self):
-        self.dis = dis
-        self.run_menu = True
-        self.background = menu_screen_image
-        self.buttons = [
+        """Initialize class attributes"""
+
+        self.dis = dis                                      # Copy of display's memory address
+        self.run_menu = True                                # Run menu boolean (True by default because we want to run the menu obviously)
+        self.menu_background = menu_screen_image            # Background image
+
+        self.buttons = [                                    # A list of buttons stored in memory
             PlayButton(),
             TutorialButton(),
             StatisticsButton(),
@@ -26,54 +26,105 @@ class MenuScreen:
             NextCharacterButton(),
             PreviousCharacterButton()
         ]
-        self.statistics_page = MenuStatisticsPage()
-        self.button_cooldown = 0
-        self.character_choice = self.get_character()
-        self.character_image_scale = 1.7
+
+        self.statistics_page = MenuStatisticsPage()         # Initialize the statistics page to call back to later
+        self.button_cooldown = 0                            # Set the button cooldown to 0 (we have a cooldown for buttons to stop double-clicks)
+        self.character_choice = self.get_character()        # Set the default character choice to whatever is currently in the user's preferences
+        self.character_image_scale = 1.7                    # Set the STATIC, hardcoded character image scale (1.7)
 
     def handle_events(self):
+        """
+        Handle all game events from within the loop
+
+        MOUSEBUTTONDOWN + BUTTON -> Corresponding Action
+        KEYDOWN + KEY -> Next character or Previous character (UP_ARROW = Forward, DOWN_ARROW = Backward, etc.)
+
+        :return: No returns
+        """
+
+        # Get the event queue
         for event in pygame.event.get():
+
+            # If the button cooldown iterator is greater than zero, reduce cooldown #
             if self.button_cooldown > 0: self.button_cooldown -= 1
+
+            # On quit event, quit the game
             if event.type == pygame.QUIT:
                 pygame.quit(), exit()
 
+            # Run checks on mousebuttondown
             if event.type == pygame.MOUSEBUTTONDOWN:
+
+                # Check through the buttons
+
                 for idx, button in enumerate(self.buttons):
-                    if self.button_collision(button):
 
-                        if self.button_cooldown > 0:
-                            break
+                    # Check if button cooldown is > 0, if not, cancel
+                    if self.button_cooldown > 0:
+                        break
 
-                        pygame.mixer.Sound.play(sounds['button_click_sound'])
+                    # If they don't collide with a button, continue to the next iteration & skip the rest of this iteration
+                    if not self.mouse_on_button(button):
+                        continue
 
-                        self.button_cooldown = 30
-                        # Play Button
-                        if idx == 0:
-                            self.run_menu = False
-                        if idx == 1:
-                            Tutorial().run_menu()
-                            set_music('menu_game_music')
-                            pygame.mixer.music.play()
-                        if idx == 2:
-                            self.statistics_page.run_menu()
-                        if idx == 3:
-                            webbrowser.open('https://github.com/isaackogan/BaseInvaders', new=2)
-                        if idx == 4:
-                            pygame.quit(), exit()
-                        if idx == 5:
-                            self.change_character('fwd')
-                        if idx == 6:
-                            self.change_character('bwd')
+                    # Since they're still here, they collided, so play the click sound & set the cooldown
+                    pygame.mixer.Sound.play(sounds['button_click_sound'])
+                    self.button_cooldown = 30
 
+                    # PLAY Button
+                    if idx == 0: self.run_menu = False
+
+                    # TUTORIAL Button
+                    if idx == 1:
+                        Tutorial().run_menu()
+                        set_music('menu_game_music')
+                        pygame.mixer.music.play(-1)
+
+                    # STATISTICS Button
+                    if idx == 2: self.statistics_page.run_menu()
+
+                    # CREDITS Button
+                    if idx == 3: webbrowser.open('https://github.com/isaackogan/BaseInvaders', new=2)
+
+                    # QUIT Button
+                    if idx == 4: pygame.quit(), exit()
+
+                    # CHANGE_CHARACTER FORWARD Button
+                    if idx == 5: self.change_character('fwd')
+
+                    # CHANGE_CHARACTER BACKWARD Button
+                    if idx == 6: self.change_character('bwd')
+
+            # If they click a key
             if event.type == pygame.KEYDOWN:
-                if event.key in [ord("w"), ord("d"), pygame.K_RIGHT, pygame.K_UP]:
-                    pygame.mixer.Sound.play(sounds['button_click_sound'])
-                    self.change_character('fwd')
-                if event.key in [ord("a"), ord("s"), pygame.K_LEFT, pygame.K_DOWN]:
-                    pygame.mixer.Sound.play(sounds['button_click_sound'])
-                    self.change_character('bwd')
 
-    def button_collision(self, button):
+                # Set conditions
+                keydown_conditions = {
+                    'forward': event.key in [ord("w"), ord("d"), pygame.K_RIGHT, pygame.K_UP],
+                    'backward': event.key in [ord("a"), ord("s"), pygame.K_LEFT, pygame.K_DOWN]
+                }
+
+                # If they meet any conditions, play the sound
+                if any(keydown_conditions):
+                    pygame.mixer.Sound.play(sounds['button_click_sound'])
+
+                # Move forward/backward depending on which condition they met
+                if keydown_conditions['forward']: self.change_character('fwd')
+                if keydown_conditions['backward']: self.change_character('bwd')
+
+    @staticmethod
+    def mouse_on_button(button):
+        """
+        Check if the mouse is on the button via static method
+
+        Actions:
+            1. Get the mouse position
+            2. Check if those mouse position overlaps with where the button is
+            3. Return boolean based on whether or not it is
+
+        :return (bool): Whether or not the mouse was on the button
+        """
+
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
         conditions = [
@@ -85,14 +136,21 @@ class MenuScreen:
         return all(conditions)
 
     def draw_graphics(self):
+        """
+        Blit all items onto the display (all items are blitted here in the loop)
+        :return: No returns
+        """
 
-        self.dis.blit(self.background, (0, 0))
+        # Blit menu background onto display
+        self.dis.blit(self.menu_background, (0, 0))
 
+        # Iterate through the buttons & blit them onto the display
         for button in self.buttons:
-            button_result = button.get_button(self.button_collision(button))
+            button_result = button.get_button(self.mouse_on_button(button))
 
             self.dis.blit(button_result[0], button_result[1])
 
+        # Scale the character, calculate its location, and blit it into the display
         self.dis.blit(pygame.transform.smoothscale(
             self.get_character(),
             (
@@ -102,49 +160,71 @@ class MenuScreen:
             self.get_character_pos()
         )
 
-    def get_character_pos(self):
-        character_position = {
-            'standard_boy': (310, 437),
-            'standard_girl': (255, 455),
-            'zombie_boy': (280, 422),
-            'zombie_girl': (232, 407),
-            'ninja_boy': (320, 470),
-            'ninja_girl': (295, 437),
-            'cat_animal': (240, 450),
-            'dog_animal': (239, 448),
-            'adventure_boy': (290, 450),
-            'adventure_girl': (222, 433),
-        }
+    @staticmethod
+    def get_character_pos():
+        """
+        Get the position for the current character
 
+        Actions:
+            1. Open the json file
+            2. See what the current character is
+            3. Get the X, Y co-ords for that character
+            4. Return the coordinates
+
+        :return: Tuple of (X, Y) item coordinates in pixel values
+        """
+
+        # Open the json file & load the data into memory as a dictionary
         with open('./BaseInvaders/resources/user_data.json') as data:
             preferences = json.load(data)
 
+        # Get the character preference
         character_choice = preferences.get('preferences').get('character')
 
-        character_position = character_position[character_choice]
+        # Grab the corresponding character position
+        character_position = character_positions[character_choice]
 
+        # Return the Tuple
         return character_position
 
-    def get_character(self):
-        character_choices = {
-            'standard_boy': pygame.image.load('./BaseInvaders/resources/characters/standard/boy/idle/Idle (1).png'),
-            'standard_girl': pygame.image.load('./BaseInvaders/resources/characters/standard/girl/idle/Idle (1).png'),
-            'zombie_boy':  pygame.image.load('./BaseInvaders/resources/characters/zombie/zombieboy/idle/Idle (1).png'),
-            'zombie_girl':  pygame.image.load('./BaseInvaders/resources/characters/zombie/zombiegirl/idle/Idle (1).png'),
-            'ninja_boy': pygame.image.load('./BaseInvaders/resources/characters/ninja/ninjaboy/idle/Idle__000.png'),
-            'ninja_girl': pygame.image.load('./BaseInvaders/resources/characters/ninja/ninjagirl/idle/Idle__000.png'),
-            'cat_animal': pygame.image.load('./BaseInvaders/resources/characters/animal/cat/idle/Idle (1).png'),
-            'dog_animal': pygame.image.load('./BaseInvaders/resources/characters/animal/dog/idle/Idle (1).png'),
-            'adventure_boy': pygame.image.load('./BaseInvaders/resources/characters/adventure/adventureboy/idle/Idle__000.png'),
-            'adventure_girl': pygame.image.load('./BaseInvaders/resources/characters/adventure/adventuregirl/idle/Idle (1).png')
-        }
+    @staticmethod
+    def get_character():
+        """
+        Get the character image
+
+        Actions:
+            1. Load the json file
+            2. See what the current character is
+            3. Get the valid image for that character
+            4. Return the image object
+
+        :return: valid pygame.Image object to be displayed
+        """
+
+        # Open the json file & load the data into memory as a dictionary
         with open('./BaseInvaders/resources/user_data.json') as data:
             preferences = json.load(data)
 
+        # Get the current character preference, return its image
         return character_choices[preferences.get('preferences').get('character')]
 
     def change_character(self, direction):
-        character_choices = [
+        """
+        Change the character based on a selection of back and forward
+
+        Actions:
+            1. Get & match the character
+            2. Increase/decrease depending on the direction chosen
+            3. Overflow/Underflow if it is too small/too large
+            4. Change the preference in the json file to the new preference at the id
+            5. Get the new character choice (update the char attribute (Image Object) w/in the class)
+
+        :param direction: 'fwd' or 'bwd' to move forward or backward
+        :return: Returns nothing
+        """
+
+        # A list of options in which the user has picked one
+        character_choice = [
             'standard_boy',
             'standard_girl',
             'zombie_boy',
@@ -157,129 +237,161 @@ class MenuScreen:
             'adventure_girl'
         ]
 
+        # Open the json file, load the data to memory
         with open('./BaseInvaders/resources/user_data.json') as data:
             preferences = json.load(data)
-            current_pref_id = character_choices.index(preferences['preferences']['character'])
 
-            if direction == 'fwd':
-                if current_pref_id + 1 < len(character_choices):
-                    current_pref_id += 1
-                else:
-                    current_pref_id = 0
+        # Get the current ID from preferences
+        current_pref_id = character_choice.index(preferences['preferences']['character'])
 
-            if direction == 'bwd':
-                if current_pref_id - 1 >= 0:
-                    current_pref_id -= 1
-                else:
-                    current_pref_id = len(character_choices) - 1
+        # If you click the forward button
+        if direction == 'fwd':
+            if current_pref_id + 1 < len(character_choice): current_pref_id += 1  # Move forward if you can
+            else: current_pref_id = 0  # Set to 0 if you can't (overflow to beginning)
 
-            preferences['preferences']['character'] = character_choices[current_pref_id]
+        # If you click the backward
+        if direction == 'bwd':
+            if current_pref_id - 1 >= 0: current_pref_id -= 1  # Move backward if you can
+            else: current_pref_id = len(character_choice) - 1  # Set t0 len(character_choice) if you can't (underflow to end)
 
+        # Edit the preference to the new selection
+        preferences['preferences']['character'] = character_choice[current_pref_id]
+
+        # Dump the new choice into the file/save
         with open('./BaseInvaders/resources/user_data.json', 'w') as file:
             json.dump(preferences, file)
 
-
+        # Get the new character w/ self.character_choice
         self.character_choice = self.get_character()
 
 
 class MenuButton:
+    """Menu Button Class"""
     def __init__(self):
-        self.button_x = 680
-        self.button_y = 0
+        """Set up the class attributes"""
+        self.button_x = 680                             # Button X location
+        self.button_y = 0                               # Button Y location
 
-        self.font = None
-        self.font_color = COLOR_WHITE
-        self.font_color_dark = COLOR_WHITE_DARK
-        self.text = None
+        self.font = None                                # Button font
+        self.font_color = COLOR_WHITE                   # Button font colour
+        self.font_color_dark = COLOR_WHITE_DARK         # Button font colour dark (no physical button, the button IS the text)
+        self.text = None                                # Button text
 
-    def get_button(self, large=False):
-        if large:
-            font_color = self.font_color_dark
-        else:
-            font_color = self.font_color
+    def get_button(self, mouse_button_collision=False):
+        """
+        Get the button
 
-        text = self.font.render(self.text, True, font_color)
+        Actions:
+            1. Check if the mouse-button collision flag is True
+            2. If it is, dark, else light
+            3. Return the rendered font and the button location
 
-        return text, (self.button_x, self.button_y)
+        :param mouse_button_collision: (bool) -> True = Dark, False = Light
+        :return: (Tuple) -> (valid pygame.Surface object of rendered text, (Tuple -> button x, button y))
+        """
+
+        # If the mouse is on the button, make it dark, otherwise it's light
+        if mouse_button_collision: font_color = self.font_color_dark
+        else: font_color = self.font_color
+
+        # Return the rendered text, the button_x and button_y location
+        return self.font.render(self.text, True, font_color), (self.button_x, self.button_y)
 
 
 class PlayButton(MenuButton):
+    """Play Button Class"""
     def __init__(self):
-        MenuButton.__init__(self)
-        self.button_x = 690
-        self.button_y = 322
-        self.font = franklin_gothic_large_2
-        self.text = "PLAY"
-        self.size = self.font.size(self.text)
+        MenuButton.__init__(self)                   # Initialize super class
+        self.button_x = 690                         # Set button x
+        self.button_y = 322                         # Set button y
+        self.font = franklin_gothic_large_2         # Set button font
+        self.text = "PLAY"                          # Set button text
+        self.size = self.font.size(self.text)       # Calculate button size
 
 
 class TutorialButton(MenuButton):
+    """Play Button Class"""
     def __init__(self):
-        MenuButton.__init__(self)
-        self.button_y = 555
-        self.font = franklin_gothic_medium_2
-        self.text = "Tutorial"
-        self.size = self.font.size(self.text)
+        MenuButton.__init__(self)                   # Initialize super class
+        self.button_y = 555                         # Set button y
+        self.font = franklin_gothic_medium_2        # Set button font
+        self.text = "Tutorial"                      # Set button text
+        self.size = self.font.size(self.text)       # Calculate button size
 
 
 class StatisticsButton(MenuButton):
+    """Statistics Button Class"""
     def __init__(self):
-        MenuButton.__init__(self)
-        self.button_y = 625
-        self.font = franklin_gothic_medium_2
-        self.text = "Statistics"
-        self.size = self.font.size(self.text)
+        MenuButton.__init__(self)                   # Initialize super class
+        self.button_y = 625                         # Set button y
+        self.font = franklin_gothic_medium_2        # Set button font
+        self.text = "Statistics"                    # Set button text
+        self.size = self.font.size(self.text)       # Calculate button size
 
 
 class CreditsButton(MenuButton):
+    """Credits Button Class"""
     def __init__(self):
-        MenuButton.__init__(self)
-        self.button_y = 695
-        self.font = franklin_gothic_medium_2
-        self.text = "Credits"
-        self.size = self.font.size(self.text)
+        MenuButton.__init__(self)                   # Initialize super class
+        self.button_y = 695                         # Set button y
+        self.font = franklin_gothic_medium_2        # Set button font
+        self.text = "Credits"                       # Set button text
+        self.size = self.font.size(self.text)       # Calculate button size
 
 
 class ExitGameButton(MenuButton):
+    """Exit Game Button Class"""
     def __init__(self):
-        MenuButton.__init__(self)
-        self.button_y = 765
-        self.font = franklin_gothic_medium_2
-        self.text = "Exit Game"
-        self.size = self.font.size(self.text)
+        MenuButton.__init__(self)                   # Initialize super class
+        self.button_y = 765                         # Set button Y
+        self.font = franklin_gothic_medium_2        # Set button font
+        self.text = "Exit Game"                     # Set button text
+        self.size = self.font.size(self.text)       # Calculate button size
 
 
 class NextCharacterButton(MenuButton):
+    """Next Character Button Class"""
     def __init__(self):
-        MenuButton.__init__(self)
-        MenuButton.__init__(self)
-        self.button_x = 455
-        self.button_y = 770
-        self.font = franklin_gothic_medium_2
-        self.text = "Next"
-        self.size = self.font.size(self.text)
+        MenuButton.__init__(self)                   # Initialize super class
+        self.button_x = 455                         # Set button x
+        self.button_y = 770                         # Set button y
+        self.font = franklin_gothic_medium_2        # Set button font
+        self.text = "Next"                          # Set button text
+        self.size = self.font.size(self.text)       # Calculate button size
 
 
 class PreviousCharacterButton(MenuButton):
+    """Previous Character Button Class"""
     def __init__(self):
-        MenuButton.__init__(self)
-        self.button_x = 220
-        self.button_y = 770
-        self.font = franklin_gothic_medium_2
-        self.text = "Back"
-        self.size = self.font.size(self.text)
+        MenuButton.__init__(self)                   # Initialize super class
+        self.button_x = 220                         # Set button x
+        self.button_y = 770                         # Set button y
+        self.font = franklin_gothic_medium_2        # Set button font
+        self.text = "Back"                          # Set button text
+        self.size = self.font.size(self.text)       # Calculate button size
 
 
 def run_start_menu(clock):
-    smenu = MenuScreen()
+    """
+    Run the start menu
+
+    :param clock: The clock to tick
+    :return: Return False (always, because it has to be false to stop the menu)
+    """
+
+    # Initialize the start menu class, set the music & set to play on a loop
+    start_menu = MainMenu()
     set_music('menu_game_music')
     pygame.mixer.music.play(-1)
 
-    while smenu.run_menu:
-        smenu.handle_events()
-        smenu.draw_graphics()
-        pygame.display.flip()
-        clock.tick(25)
+    # While the start menu run menu bool is true, run
+    while start_menu.run_menu:
+        start_menu.handle_events()      # Handle events
+        start_menu.draw_graphics()      # Draw graphics
+        pygame.display.flip()           # Update the display
+        clock.tick(25)                  # Tick the display
 
-    pygame.mixer.music.stop()
-    return smenu.run_menu
+    pygame.mixer.music.stop()           # Stop the music
+
+    # Return False
+    return start_menu.run_menu
